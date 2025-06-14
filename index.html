@@ -192,6 +192,7 @@
         ];
 
         // --- REFERENCIAS AL DOM ---
+        // (Referencias existentes sin cambios)
         const initialActions = document.getElementById('initial-actions');
         const detailsEntryScreen = document.getElementById('details-entry-screen');
         const goToCreateBtn = document.getElementById('go-to-create-btn');
@@ -523,8 +524,63 @@
             catch (error) { console.error("Failed to save answers:", error); }
         }
 
-        verifyAnswersBtn.addEventListener('click', async () => { /* ... (código sin cambios) ... */ });
-        async function manualCorrection(playerId, categoryId, correct) { /* ... (código sin cambios) ... */ }
+        verifyAnswersBtn.addEventListener('click', async () => {
+            verifyLoader.classList.remove('hidden');
+            verifyAnswersBtn.disabled = true;
+            const gameRef = doc(db, "games", currentGameId);
+            const gameDoc = await getDoc(gameRef);
+            const gameData = gameDoc.data();
+            
+            const allResponses = gameData.responses || {};
+            const playerIds = Object.keys(allResponses);
+            const verifiedResults = {};
+            
+            for (const playerId of playerIds) {
+                verifiedResults[playerId] = {};
+                for (const cat of gameData.categories) {
+                    const answer = (allResponses[playerId]?.[cat.id] || "").trim();
+                    if (!answer) {
+                        verifiedResults[playerId][cat.id] = { score: 0 };
+                        continue;
+                    }
+
+                    const prompt = `Evalúa esta respuesta para un juego de Tutti Frutti de forma estricta. Letra: '${gameData.currentLetter}'. Categoría: '${cat.label}'. Respuesta: '${answer}'.\nReglas estrictas:\n1. La respuesta DEBE ser una palabra o término real y relevante para la categoría.\n2. La respuesta DEBE empezar con la letra '${gameData.currentLetter}'.\n3. No se aceptan respuestas de una sola letra (excepto si es un nombre propio reconocido como 'U Thant').\n4. Penaliza errores de ortografía graves.\nDevuelve un JSON con una única clave "score" (number): 10 si es perfecta, 0 si no cumple ALGUNA regla.`;
+                    
+                    try {
+                        // --- IMPORTANTE: Pega tu clave de API de Gemini aquí ---
+                        const apiKey = "REEMPLAZA_CON_TU_API_KEY"; 
+                        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                        const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } };
+                        const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                        if (!response.ok) throw new Error('API request failed');
+                        const result = await response.json();
+                        verifiedResults[playerId][cat.id] = { score: JSON.parse(result.candidates[0].content.parts[0].text).score };
+                    } catch (e) {
+                        verifiedResults[playerId][cat.id] = { score: 0 }; 
+                        console.error(`Error verifying ${answer} for ${cat.label}:`, e);
+                    }
+                }
+            }
+
+            try { await updateDoc(gameRef, { detailedResults: verifiedResults }); } 
+            catch (error) { showFirebaseError(error); }
+            verifyLoader.classList.add('hidden');
+        });
+
+        async function manualCorrection(playerId, categoryId, correct) {
+            const gameRef = doc(db, "games", currentGameId);
+            let reason = '';
+            if (!correct) {
+                reason = prompt(`¿Por qué la respuesta es incorrecta? (Opcional)`);
+            }
+            const newScore = correct ? 10 : 0;
+            const updatePath = `detailedResults.${playerId}.${categoryId}`;
+            try {
+                await updateDoc(gameRef, {
+                    [updatePath]: { score: newScore, manual: true, reason: reason || '' }
+                });
+            } catch(e) { showFirebaseError(e); }
+        }
         
         confirmScoresBtn.addEventListener('click', async () => {
             confirmScoresBtn.disabled = true;
