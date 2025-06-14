@@ -548,7 +548,7 @@
                     
                     try {
                         // --- IMPORTANTE: Pega tu clave de API de Gemini aquí ---
-                        const apiKey = ""; 
+                        const apiKey = "AIzaSyCYn5XSl_1Lm8RHtD6ewDifSCipzVmFIWc"; 
                         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
                         const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } };
                         const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
