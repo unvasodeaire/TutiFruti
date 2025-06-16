@@ -1,0 +1,178 @@
+/* Definiendo nuestra paleta de colores oscuros */
+:root {
+    --bg-primary: #1a202c;       /* Un azul marino/carbón muy oscuro */
+    --bg-card: #2d3748;         /* Un gris azulado para las tarjetas y contenedores */
+    --bg-input: #4a5568;         /* Un gris más claro para los campos de entrada */
+    --text-primary: #edf2f7;     /* Texto principal casi blanco */
+    --text-secondary: #a0aec0;   /* Texto secundario más apagado */
+    --accent: #63b3ed;           /* Un azul vibrante como color de acento */
+    --accent-hover: #4299e1;     /* Versión más oscura del acento para hover */
+    --success: #68d391;          /* Verde para acciones de éxito */
+    --danger: #fc8181;           /* Rojo para acciones de peligro como "Basta" */
+}
+
+body { 
+    font-family: 'Poppins', sans-serif; 
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s, color 0.3s;
+
+    /* --- LINEAS NUEVAS PARA CENTRAR --- */
+    display: flex;                /* Activa Flexbox */
+    align-items: center;          /* Centra verticalmente */
+    justify-content: center;      /* Centra horizontalmente */
+    min-height: 100vh;            /* Hace que el body ocupe toda la altura de la pantalla */
+}
+
+#game-container {
+    background-color: var(--bg-card);
+}
+
+/* --- Títulos y Texto --- */
+.text-accent {
+    color: var(--accent);
+}
+.text-text-secondary {
+    color: var(--text-secondary);
+}
+#letter-display {
+    color: var(--accent);
+}
+#winner-name {
+    color: #f6e05e; /* Amarillo para el ganador */
+}
+
+/* --- Botones con nuevo diseño --- */
+button {
+    border-radius: 8px;
+    font-weight: bold;
+    padding: 12px 24px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+button:active {
+    transform: scale(0.98);
+}
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+#go-to-create-btn, .btn-green {
+    background-color: var(--success);
+    color: var(--bg-primary);
+}
+#go-to-create-btn:hover, .btn-green:hover {
+    background-color: #48bb78;
+}
+
+#go-to-join-btn, .btn-blue {
+    background-color: var(--accent);
+    color: var(--bg-primary);
+}
+#go-to-join-btn:hover, .btn-blue:hover {
+    background-color: var(--accent-hover);
+}
+
+#basta-btn {
+    background-color: var(--danger);
+    color: var(--bg-primary);
+}
+#basta-btn:hover {
+    background-color: #f56565;
+}
+
+#back-to-start-btn, #close-error-modal {
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+}
+#back-to-start-btn:hover, #close-error-modal:hover {
+    background-color: #718096;
+}
+
+/* --- Inputs y Formularios --- */
+input[type="text"], input[type="number"] {
+    background-color: var(--bg-input);
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 12px;
+    color: var(--text-primary);
+    transition: border-color 0.3s;
+}
+input[type="text"]:focus, input[type="number"]:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+/* --- EFECTOS VISUALES Y ANIMACIONES --- */
+@keyframes fadeIn { 
+    from { opacity: 0; transform: translateY(-10px); } 
+    to { opacity: 1; transform: translateY(0); } 
+}
+.fade-in { 
+    animation: fadeIn 0.5s ease-out forwards; 
+}
+
+/* Efecto de pulso para la letra de la ronda */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+.pulse {
+    animation: pulse 0.5s ease-in-out;
+}
+
+/* Efecto de hover para listas */
+#player-list li, #category-list li {
+    transition: background-color 0.2s, transform 0.2s;
+}
+#player-list li:hover, #category-list li:hover {
+    background-color: var(--bg-input) !important; /* Usamos important para sobreescribir tailwind */
+    transform: translateX(5px);
+}
+
+.loader { 
+    border: 4px solid var(--bg-input); 
+    border-top: 4px solid var(--accent); 
+    border-radius: 50%; 
+    width: 24px; 
+    height: 24px; 
+    animation: spin 1s linear infinite; 
+}
+@keyframes spin { 
+    0% { transform: rotate(0deg); } 
+    100% { transform: rotate(360deg); } 
+}
+
+/* --- ESTILOS PARA REORDENAR CATEGORÍAS --- */
+
+/* Cambia el cursor para indicar que los elementos se pueden mover */
+#category-list.sortable-active li {
+    cursor: grab;
+}
+
+/* Estilo del elemento "fantasma" que muestra dónde se soltará el item */
+.sortable-ghost {
+    opacity: 0.4;
+    background-color: var(--accent-hover);
+}
+
+/* Estilo del elemento mientras se está arrastrando */
+.sortable-drag {
+    opacity: 0.9 !important;
+    transform: rotate(2deg); /* Ladea ligeramente el elemento al arrastrar */
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+
+/* --- Estilo para la pantalla de espera de IA --- */
+#ai-verifying-screen {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px; /* Le da una altura mínima para que se vea bien */
+}
+
+/* ... (tus @keyframes existentes) ... */
