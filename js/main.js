@@ -1,3 +1,5 @@
+// js/main.js (Versión Corregida)
+
 import { db, auth } from './firebase.js';
 import { 
     signInAnonymously, 
@@ -8,65 +10,62 @@ import {
     collection, addDoc, query, orderBy, serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-// --- REFERENCIAS AL DOM ---
-const initialActions = document.getElementById('initial-actions');
-const detailsEntryScreen = document.getElementById('details-entry-screen');
-const goToCreateBtn = document.getElementById('go-to-create-btn');
-const goToJoinBtn = document.getElementById('go-to-join-btn');
-const detailsTitle = document.getElementById('details-title');
-const playerNameInput = document.getElementById('player-name-input');
-const gameCodeInputContainer = document.getElementById('game-code-input-container');
-const gameCodeInput = document.getElementById('game-code-input');
-const createOptionsContainer = document.getElementById('create-options-container');
-const targetScoreInput = document.getElementById('target-score-input');
-const bastaBonusInput = document.getElementById('basta-bonus-input');
-const backToStartBtn = document.getElementById('back-to-start-btn');
-const confirmActionBtn = document.getElementById('confirm-action-btn');
-const confirmActionText = document.getElementById('confirm-action-text');
-const actionLoader = document.getElementById('action-loader');
-const lobbyTargetScore = document.getElementById('lobby-target-score');
-const lobbyBastaBonus = document.getElementById('lobby-basta-bonus');
-const copyGameIdBtn = document.getElementById('copy-game-id');
-const startGameBtn = document.getElementById('start-game-btn');
-const gameIdDisplay = document.getElementById('game-id-display');
-const playerList = document.getElementById('player-list');
-const waitingForHostMsg = document.getElementById('waiting-for-host-msg');
-const categoryEditorContainer = document.getElementById('category-editor-container');
-const categoryList = document.getElementById('category-list');
-const addCategoryForm = document.getElementById('add-category-form');
-const newCategoryInput = document.getElementById('new-category-input');
-const chatMessages = document.getElementById('chat-messages');
-const chatForm = document.getElementById('chat-form');
-const chatInput = document.getElementById('chat-input');
-const roundTitle = document.getElementById('round-title');
-const letterDisplay = document.getElementById('letter-display');
-const totalScoreDisplay = document.getElementById('total-score');
-const gameForm = document.getElementById('game-form');
-const bastaBtn = document.getElementById('basta-btn');
-const resultsTitle = document.getElementById('results-title');
-const resultsDisplay = document.getElementById('results-display');
-const roundScoreDisplay = document.getElementById('round-score');
-const resultsButtons = document.getElementById('results-buttons');
-const verifyAnswersBtn = document.getElementById('verify-answers-btn');
-const confirmScoresBtn = document.getElementById('confirm-scores-btn');
-const nextRoundBtn = document.getElementById('next-round-btn');
-const verifyLoader = document.getElementById('verify-loader');
-const winnerScreen = document.getElementById('winner-screen');
-const winnerName = document.getElementById('winner-name');
-const finalScoresList = document.getElementById('final-scores-list');
-const playAgainBtn = document.getElementById('play-again-btn');
-const errorModal = document.getElementById('error-modal');
-const errorMessage = document.getElementById('error-message');
-const closeErrorModalBtn = document.getElementById('close-error-modal');
-const authLoader = document.getElementById('auth-loader');
+    // --- REFERENCIAS AL DOM ---
+    const initialActions = document.getElementById('initial-actions');
+    const detailsEntryScreen = document.getElementById('details-entry-screen');
+    const goToCreateBtn = document.getElementById('go-to-create-btn');
+    const goToJoinBtn = document.getElementById('go-to-join-btn');
+    const detailsTitle = document.getElementById('details-title');
+    const playerNameInput = document.getElementById('player-name-input');
+    const gameCodeInputContainer = document.getElementById('game-code-input-container');
+    const gameCodeInput = document.getElementById('game-code-input');
+    const createOptionsContainer = document.getElementById('create-options-container');
+    const targetScoreInput = document.getElementById('target-score-input');
+    const bastaBonusInput = document.getElementById('basta-bonus-input');
+    const backToStartBtn = document.getElementById('back-to-start-btn');
+    const confirmActionBtn = document.getElementById('confirm-action-btn');
+    const confirmActionText = document.getElementById('confirm-action-text');
+    const actionLoader = document.getElementById('action-loader');
+    const lobbyTargetScore = document.getElementById('lobby-target-score');
+    const lobbyBastaBonus = document.getElementById('lobby-basta-bonus');
+    const copyGameIdBtn = document.getElementById('copy-game-id');
+    const startGameBtn = document.getElementById('start-game-btn');
+    const gameIdDisplay = document.getElementById('game-id-display');
+    const playerList = document.getElementById('player-list');
+    const waitingForHostMsg = document.getElementById('waiting-for-host-msg');
+    const categoryEditorContainer = document.getElementById('category-editor-container');
+    const categoryList = document.getElementById('category-list');
+    const addCategoryForm = document.getElementById('add-category-form');
+    const newCategoryInput = document.getElementById('new-category-input');
+    const chatMessages = document.getElementById('chat-messages');
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const roundTitle = document.getElementById('round-title');
+    const letterDisplay = document.getElementById('letter-display');
+    const totalScoreDisplay = document.getElementById('total-score');
+    const gameForm = document.getElementById('game-form');
+    const bastaBtn = document.getElementById('basta-btn');
+    const resultsTitle = document.getElementById('results-title');
+    const resultsDisplay = document.getElementById('results-display');
+    const roundScoreDisplay = document.getElementById('round-score');
+    const resultsButtons = document.getElementById('results-buttons');
+    const verifyAnswersBtn = document.getElementById('verify-answers-btn');
+    const confirmScoresBtn = document.getElementById('confirm-scores-btn');
+    const nextRoundBtn = document.getElementById('next-round-btn');
+    const verifyLoader = document.getElementById('verify-loader');
+    const winnerScreen = document.getElementById('winner-screen');
+    const winnerName = document.getElementById('winner-name');
+    const finalScoresList = document.getElementById('final-scores-list');
+    const playAgainBtn = document.getElementById('play-again-btn');
+    const errorModal = document.getElementById('error-modal');
+    const errorMessage = document.getElementById('error-message');
+    const closeErrorModalBtn = document.getElementById('close-error-modal');
+    const authLoader = document.getElementById('auth-loader');
 
-
-// <--- CAMBIO 1: LÓGICA PARA EL EFECTO DE PULSO ---
-// Escucha cuando la animación de pulso termina para quitar la clase.
-// Esto permite que la animación se repita en la siguiente ronda.
-letterDisplay.addEventListener('animationend', () => {
-    letterDisplay.classList.remove('pulse');
-});
+    // --- LÓGICA PARA EFECTOS ---
+    letterDisplay.addEventListener('animationend', () => {
+        letterDisplay.classList.remove('pulse');
+    });
 
 
 // --- ESTADO DEL JUEGO LOCAL Y CONFIGURACIÓN ---
@@ -96,6 +95,8 @@ function showFirebaseError(error) {
 }
 closeErrorModalBtn.addEventListener('click', () => errorModal.classList.add('hidden'));
 
+// js/main.js
+
 // --- AUTENTICACIÓN E INICIO ---
 onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -103,6 +104,8 @@ onAuthStateChanged(auth, async (user) => {
         authLoader.classList.add('hidden');
         goToCreateBtn.disabled = false;
         goToJoinBtn.disabled = false;
+        showScreen('start-screen');
+
     } else {
         try { await signInAnonymously(auth); } catch (error) {
             authLoader.textContent = "Error de autenticación.";
