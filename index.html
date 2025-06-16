@@ -8,39 +8,24 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Poppins', sans-serif; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .fade-in { animation: fadeIn 0.5s ease-out forwards; }
-        .loader { border: 4px solid #f3f3f3; border-top: 4px solid #4f46e5; border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .manual-correction-btn {
-            background-color: transparent; border: 1px solid #d1d5db; border-radius: 50%;
-            width: 28px; height: 28px; display: inline-flex;
-            align-items: center; justify-content: center;
-            transition: all 0.2s;
-        }
-        .manual-correction-btn:hover { background-color: #f3f4f6; }
-        .manual-correction-btn.correct:hover { background-color: #dcfce7; }
-        .manual-correction-btn.incorrect:hover { background-color: #fee2e2; }
-    </style>
+    <link rel="stylesheet" href="css/styles.css"> 
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
-<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 min-h-screen flex items-center justify-center p-4">
+<body>
 
-    <div id="game-container" class="w-full max-w-4xl mx-auto bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-6 sm:p-10 transition-all duration-500">
+    <div id="game-container" class="w-full max-w-4xl mx-auto bg-card rounded-2xl shadow-2xl p-6 sm:p-10 transition-all duration-500">
         
         <header class="text-center mb-8">
-            <h1 class="text-4xl sm:text-5xl font-bold text-indigo-600 dark:text-indigo-400">Tutti Frutti Online</h1>
-            <p id="subtitle" class="text-slate-500 dark:text-slate-400 mt-2">Juega con tus amigos en tiempo real.</p>
+            <h1 class="text-4xl sm:text-5xl font-bold text-accent">Tutti Frutti Online</h1>
+            <p id="subtitle" class="text-text-secondary mt-2">Juega con tus amigos en tiempo real.</p>
         </header>
 
-        <!-- Pantalla de Inicio (Crear o Unirse) -->
         <div id="start-screen" class="fade-in text-center">
             <div id="initial-actions">
                 <h2 class="text-xl font-semibold mb-6">¡Bienvenido!</h2>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <button id="go-to-create-btn" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg" disabled>Crear Nueva Partida</button>
-                    <button id="go-to-join-btn" class="w-full sm:w-auto bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-8 rounded-lg shadow-lg" disabled>Unirse a Partida</button>
+                    <button id="go-to-create-btn" class="w-full sm:w-auto text-white py-3 px-8 rounded-lg shadow-lg" disabled>Crear Nueva Partida</button>
+                    <button id="go-to-join-btn" class="w-full sm:w-auto text-white py-3 px-8 rounded-lg shadow-lg" disabled>Unirse a Partida</button>
                 </div>
             </div>
             <div id="details-entry-screen" class="hidden">
@@ -48,81 +33,77 @@
                 <div class="space-y-4 max-w-sm mx-auto">
                     <div>
                         <label for="player-name-input" class="block text-sm font-medium text-left">Tu Nombre</label>
-                        <input type="text" id="player-name-input" class="w-full p-3 bg-slate-100 dark:bg-slate-700 rounded-lg mt-1" placeholder="Ej: Royer">
+                        <input type="text" id="player-name-input" class="w-full p-3 rounded-lg mt-1" placeholder="Ej: Royer">
                     </div>
                     <div id="game-code-input-container" class="hidden">
                         <label for="game-code-input" class="block text-sm font-medium text-left">Código de la Partida</label>
-                        <input type="text" id="game-code-input" class="w-full p-3 bg-slate-100 dark:bg-slate-700 rounded-lg mt-1" placeholder="JUEGO-XXXXX">
+                        <input type="text" id="game-code-input" class="w-full p-3 rounded-lg mt-1" placeholder="JUEGO-XXXXX">
                     </div>
                     <div id="create-options-container" class="hidden text-left">
                         <div>
                             <label for="target-score-input" class="block text-sm font-medium">Puntaje para Ganar</label>
-                            <input type="number" id="target-score-input" value="100" class="w-full p-3 bg-slate-100 dark:bg-slate-700 rounded-lg mt-1">
+                            <input type="number" id="target-score-input" value="100" class="w-full p-3 rounded-lg mt-1">
                         </div>
                         <div class="mt-4">
                              <label for="basta-bonus-input" class="block text-sm font-medium">Bonus por "¡Basta!"</label>
-                            <input type="number" id="basta-bonus-input" value="10" class="w-full p-3 bg-slate-100 dark:bg-slate-700 rounded-lg mt-1">
+                            <input type="number" id="basta-bonus-input" value="10" class="w-full p-3 rounded-lg mt-1">
                         </div>
                     </div>
                     <div class="flex gap-4 pt-2">
-                        <button id="back-to-start-btn" class="w-1/3 bg-slate-400 hover:bg-slate-500 text-white font-bold py-3 px-4 rounded-lg">Atrás</button>
-                        <button id="confirm-action-btn" class="w-2/3 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center">
+                        <button id="back-to-start-btn" class="w-1/3 text-white font-bold py-3 px-4 rounded-lg">Atrás</button>
+                        <button id="confirm-action-btn" data-action="create" class="w-2/3 btn-green text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center">
                             <span id="confirm-action-text"></span>
                             <div id="action-loader" class="loader !w-5 !h-5 hidden ml-2"></div>
                         </button>
                     </div>
                 </div>
             </div>
-            <p id="auth-loader" class="mt-4 flex items-center justify-center gap-2 text-slate-500"><span class="loader !w-5 !h-5"></span> Autenticando...</p>
+            <p id="auth-loader" class="mt-4 flex items-center justify-center gap-2"><span class="loader !w-5 !h-5"></span> Autenticando...</p>
         </div>
 
-        <!-- Lobby de Espera -->
         <div id="lobby-screen" class="hidden fade-in">
             <h2 class="text-2xl font-bold text-center mb-4">Sala de Espera</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <!-- Columna Izquierda: Jugadores y Chat -->
                 <div>
-                    <div class="bg-slate-100 dark:bg-slate-700 p-4 rounded-lg text-center mb-6">
-                        <p class="text-sm">Puntaje para ganar: <strong id="lobby-target-score" class="text-indigo-500"></strong> | Bonus "Basta": <strong id="lobby-basta-bonus" class="text-indigo-500"></strong></p>
+                    <div class="p-4 rounded-lg text-center mb-6">
+                        <p class="text-sm">Puntaje para ganar: <strong id="lobby-target-score" class="text-accent"></strong> | Bonus "Basta": <strong id="lobby-basta-bonus" class="text-accent"></strong></p>
                         <div class="flex items-center justify-center gap-4 mt-2">
-                            <strong id="game-id-display" class="text-2xl font-mono text-indigo-500"></strong>
-                            <button id="copy-game-id" class="p-2 bg-slate-200 dark:bg-slate-600 rounded-lg hover:bg-slate-300 dark:hover:bg-slate-500" aria-label="Copiar código del juego">
+                            <strong id="game-id-display" class="text-2xl font-mono text-accent"></strong>
+                            <button id="copy-game-id" class="p-2 rounded-lg" aria-label="Copiar código del juego">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3z"/></svg>
                             </button>
                         </div>
                     </div>
                     <h3 class="text-lg font-semibold mb-2">Jugadores Conectados:</h3>
-                    <ul id="player-list" class="space-y-2 mb-6 min-h-[80px] bg-slate-50 dark:bg-slate-800 p-3 rounded-lg"></ul>
+                    <ul id="player-list" class="space-y-2 mb-6 min-h-[80px] p-3 rounded-lg"></ul>
                     <div id="lobby-chat-container">
                         <h3 class="text-lg font-semibold mb-2">Chat</h3>
-                        <div id="chat-messages" class="h-40 overflow-y-auto bg-slate-50 dark:bg-slate-800 p-3 rounded-lg mb-2 text-sm"></div>
+                        <div id="chat-messages" class="h-40 overflow-y-auto p-3 rounded-lg mb-2 text-sm"></div>
                         <form id="chat-form" class="flex gap-2">
-                            <input type="text" id="chat-input" class="w-full p-2 bg-slate-100 dark:bg-slate-700 rounded-lg" placeholder="Escribe un mensaje..." autocomplete="off">
-                            <button type="submit" class="bg-indigo-600 text-white px-4 rounded-lg">Enviar</button>
+                            <input type="text" id="chat-input" class="w-full p-2 rounded-lg" placeholder="Escribe un mensaje..." autocomplete="off">
+                            <button type="submit" class="btn-blue text-white px-4 rounded-lg">Enviar</button>
                         </form>
                     </div>
                 </div>
-                <!-- Columna Derecha: Categorías -->
                 <div id="category-editor-container" class="hidden">
                     <h3 class="text-lg font-semibold mb-2">Categorías de la Partida</h3>
                     <ul id="category-list" class="space-y-2 mb-4"></ul>
                     <form id="add-category-form" class="flex gap-2">
-                        <input type="text" id="new-category-input" class="w-full p-2 bg-slate-100 dark:bg-slate-700 rounded-lg" placeholder="Añadir nueva categoría">
-                        <button type="submit" class="bg-green-600 text-white px-4 rounded-lg">Añadir</button>
+                        <input type="text" id="new-category-input" class="w-full p-2 rounded-lg" placeholder="Añadir nueva categoría">
+                        <button type="submit" class="btn-green text-white px-4 rounded-lg">Añadir</button>
                     </form>
                 </div>
             </div>
-            <button id="start-game-btn" class="w-full mt-6 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg hidden">¡Empezar Juego!</button>
-            <p id="waiting-for-host-msg" class="text-center text-slate-500 hidden mt-6">Esperando que el anfitrión inicie la partida...</p>
+            <button id="start-game-btn" class="w-full mt-6 btn-green text-white font-bold py-3 px-8 rounded-lg shadow-lg hidden">¡Empezar Juego!</button>
+            <p id="waiting-for-host-msg" class="text-center mt-6 hidden">Esperando que el anfitrión inicie la partida...</p>
         </div>
 
-        <!-- Área Principal del Juego -->
         <main id="main-game-screen" class="hidden fade-in">
-            <div class="flex flex-col sm:flex-row justify-between items-center mb-6 bg-slate-100 dark:bg-slate-700 p-4 rounded-xl">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-6 p-4 rounded-xl">
                 <div><h2 id="round-title" class="text-2xl font-bold"></h2></div>
                 <div class="text-center sm:text-left">
                     <span class="text-sm font-semibold">LETRA</span>
-                    <p id="letter-display" class="text-6xl sm:text-7xl font-bold text-indigo-500"></p>
+                    <p id="letter-display" class="text-6xl sm:text-7xl font-bold"></p>
                 </div>
                 <div class="text-center sm:text-right">
                     <span class="text-sm font-semibold">PUNTAJE TOTAL</span>
@@ -130,665 +111,49 @@
                 </div>
             </div>
             <form id="game-form" class="space-y-4"></form>
-            <button id="basta-btn" class="mt-8 w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg shadow-lg">¡BASTA!</button>
+            <button id="basta-btn" class="mt-8 w-full text-white font-bold py-3 px-6 rounded-lg shadow-lg">¡BASTA!</button>
         </main>
         
-        <!-- Área de Resultados -->
         <div id="results-screen" class="hidden fade-in">
             <h2 id="results-title" class="text-2xl font-bold text-center mb-6"></h2>
             <div id="results-display" class="space-y-2"></div>
-            <p class="text-right font-bold text-2xl mt-6">Puntaje de la Ronda: <span id="round-score" class="text-indigo-500">0</span></p>
+            <p class="text-right font-bold text-2xl mt-6">Puntaje de la Ronda: <span id="round-score" class="text-accent">0</span></p>
             <div id="results-buttons" class="flex flex-col sm:flex-row gap-4 mt-6">
-                 <button id="verify-answers-btn" class="w-full bg-teal-500 hover:bg-teal-600 text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2">✨ Verificar con IA <div id="verify-loader" class="loader hidden"></div></button>
-                <button id="confirm-scores-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg hidden">Confirmar Puntos y Sumar</button>
-                <button id="next-round-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg hidden">Siguiente Ronda</button>
+                 <button id="verify-answers-btn" class="w-full btn-blue text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2">✨ Verificar con IA <div id="verify-loader" class="loader hidden"></div></button>
+                <button id="confirm-scores-btn" class="w-full btn-green text-white font-bold py-3 px-6 rounded-lg hidden">Confirmar Puntos y Sumar</button>
+                <button id="next-round-btn" class="w-full text-white font-bold py-3 px-6 rounded-lg hidden">Siguiente Ronda</button>
             </div>
         </div>
         
-        <!-- Pantalla de Ganador -->
         <div id="winner-screen" class="hidden fade-in text-center">
             <h2 class="text-3xl font-bold text-yellow-500 mb-4">¡Tenemos un ganador!</h2>
-            <p class="text-5xl font-extrabold text-indigo-600 mb-6" id="winner-name"></p>
+            <p class="text-5xl font-extrabold text-accent mb-6" id="winner-name"></p>
             <h3 class="text-xl font-semibold mb-2">Puntajes Finales:</h3>
             <ul id="final-scores-list" class="space-y-2 mb-8 max-w-md mx-auto"></ul>
-            <button id="play-again-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg">Jugar de Nuevo</button>
+            <button id="play-again-btn" class="w-full btn-green text-white font-bold py-3 px-8 rounded-lg shadow-lg">Jugar de Nuevo</button>
         </div>
         
-        <!-- Modal de Error -->
         <div id="error-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div class="bg-white dark:bg-slate-800 rounded-lg shadow-xl p-6 max-w-md w-full">
-                <h3 class="text-xl font-bold text-red-600 dark:text-red-400 mb-4 text-center">Error</h3>
-                <div id="error-message" class="text-slate-700 dark:text-slate-300 mb-6 text-left whitespace-pre-wrap bg-slate-100 dark:bg-slate-700 p-4 rounded-md"></div>
-                <button id="close-error-modal" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg w-full">Cerrar</button>
+             <div class="bg-card rounded-lg shadow-xl p-6 max-w-md w-full">
+                <h3 class="text-xl font-bold text-danger mb-4 text-center">Error</h3>
+                <div id="error-message" class="mb-6 text-left whitespace-pre-wrap p-4 rounded-md"></div>
+                <button id="close-error-modal" class="w-full">Cerrar</button>
             </div>
         </div>
+
+        <div id="ai-verifying-screen" class="hidden fade-in text-center flex flex-col justify-center items-center min-h-[400px]">
+            <h2 class="text-3xl font-bold text-accent mb-4">Verificando con IA</h2>
+            <p class="text-text-secondary mb-8">Por favor, espera mientras se evalúan las respuestas...</p>
+            <div class="loader !w-16 !h-16 mx-auto"></div>
+        </div>
+        
     </div>
 
-    <!-- Módulo de Firebase -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, collection, addDoc, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // --- CONFIGURACIÓN ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyBPzUGUCfRzbShQbJ9zQM2MJAyeQ3-yrsg",
-            authDomain: "royer2025-5837b.firebaseapp.com",
-            projectId: "royer2025-5837b",
-            storageBucket: "royer2025-5837b.appspot.com",
-            messagingSenderId: "694629365695",
-            appId: "1:694629365695:web:d7682bdfefe10fa095130a",
-            measurementId: "G-J17RTWG08J"
-        };
-        
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-        
-        const letters = 'ABCDEFGHIJLMNOPQRSTUV';
-        let defaultCategories = [
-            { id: 'nombre', label: 'Nombre' }, { id: 'animal', label: 'Animal' }, { id: 'color', label: 'Color' },
-            { id: 'fruta_verdura', label: 'Fruta o Verdura' }, { id: 'objeto', label: 'Objeto' }
-        ];
-
-        // --- REFERENCIAS AL DOM ---
-        // (Referencias existentes sin cambios)
-        const initialActions = document.getElementById('initial-actions');
-        const detailsEntryScreen = document.getElementById('details-entry-screen');
-        const goToCreateBtn = document.getElementById('go-to-create-btn');
-        const goToJoinBtn = document.getElementById('go-to-join-btn');
-        const detailsTitle = document.getElementById('details-title');
-        const playerNameInput = document.getElementById('player-name-input');
-        const gameCodeInputContainer = document.getElementById('game-code-input-container');
-        const gameCodeInput = document.getElementById('game-code-input');
-        const createOptionsContainer = document.getElementById('create-options-container');
-        const targetScoreInput = document.getElementById('target-score-input');
-        const bastaBonusInput = document.getElementById('basta-bonus-input');
-        const backToStartBtn = document.getElementById('back-to-start-btn');
-        const confirmActionBtn = document.getElementById('confirm-action-btn');
-        const confirmActionText = document.getElementById('confirm-action-text');
-        const actionLoader = document.getElementById('action-loader');
-        const lobbyTargetScore = document.getElementById('lobby-target-score');
-        const lobbyBastaBonus = document.getElementById('lobby-basta-bonus');
-        const copyGameIdBtn = document.getElementById('copy-game-id');
-        const startGameBtn = document.getElementById('start-game-btn');
-        const gameIdDisplay = document.getElementById('game-id-display');
-        const playerList = document.getElementById('player-list');
-        const waitingForHostMsg = document.getElementById('waiting-for-host-msg');
-        const categoryEditorContainer = document.getElementById('category-editor-container');
-        const categoryList = document.getElementById('category-list');
-        const addCategoryForm = document.getElementById('add-category-form');
-        const newCategoryInput = document.getElementById('new-category-input');
-        const chatMessages = document.getElementById('chat-messages');
-        const chatForm = document.getElementById('chat-form');
-        const chatInput = document.getElementById('chat-input');
-        const roundTitle = document.getElementById('round-title');
-        const letterDisplay = document.getElementById('letter-display');
-        const totalScoreDisplay = document.getElementById('total-score');
-        const gameForm = document.getElementById('game-form');
-        const bastaBtn = document.getElementById('basta-btn');
-        const resultsTitle = document.getElementById('results-title');
-        const resultsDisplay = document.getElementById('results-display');
-        const roundScoreDisplay = document.getElementById('round-score');
-        const resultsButtons = document.getElementById('results-buttons');
-        const verifyAnswersBtn = document.getElementById('verify-answers-btn');
-        const confirmScoresBtn = document.getElementById('confirm-scores-btn');
-        const nextRoundBtn = document.getElementById('next-round-btn');
-        const verifyLoader = document.getElementById('verify-loader');
-        const winnerScreen = document.getElementById('winner-screen');
-        const winnerName = document.getElementById('winner-name');
-        const finalScoresList = document.getElementById('final-scores-list');
-        const playAgainBtn = document.getElementById('play-again-btn');
-        const errorModal = document.getElementById('error-modal');
-        const errorMessage = document.getElementById('error-message');
-        const closeErrorModalBtn = document.getElementById('close-error-modal');
-        const authLoader = document.getElementById('auth-loader');
-
-        // --- ESTADO DEL JUEGO LOCAL ---
-        let currentUser = null;
-        let currentGameId = null;
-        let unsubscribeFromGame = null;
-        let unsubscribeFromChat = null;
-        let localPlayerIsHost = false;
-        let currentAction = null; 
-        let debouncedSave = null;
-        let localRoundNumber = 0;
-        let localPlayerName = '';
-
-        // --- MANEJO DE ERRORES ---
-        function showFirebaseError(error) {
-            console.error("Firebase Error:", error.code, error.message);
-            let userMessage = `Ocurrió un error inesperado:\n${error.message}`;
-            if (error.code === 'permission-denied') { userMessage = `Error de Permisos...`; }
-            errorMessage.textContent = userMessage;
-            errorModal.classList.remove('hidden');
-        }
-        closeErrorModalBtn.addEventListener('click', () => errorModal.classList.add('hidden'));
-
-        // --- AUTENTICACIÓN E INICIO ---
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUser = user;
-                authLoader.classList.add('hidden');
-                goToCreateBtn.disabled = false;
-                goToJoinBtn.disabled = false;
-            } else {
-                try { await signInAnonymously(auth); } catch (error) {
-                    authLoader.textContent = "Error de autenticación.";
-                    showFirebaseError(error);
-                }
-            }
-        });
-        
-        // --- NAVEGACIÓN EN PANTALLA DE INICIO ---
-        goToCreateBtn.addEventListener('click', () => {
-            currentAction = 'create';
-            initialActions.classList.add('hidden');
-            detailsEntryScreen.classList.remove('hidden');
-            detailsTitle.textContent = "Crear Nueva Partida";
-            createOptionsContainer.classList.remove('hidden');
-            gameCodeInputContainer.classList.add('hidden');
-            confirmActionText.textContent = "Crear y Entrar";
-        });
-        
-        goToJoinBtn.addEventListener('click', () => {
-            currentAction = 'join';
-            initialActions.classList.add('hidden');
-            detailsEntryScreen.classList.remove('hidden');
-            detailsTitle.textContent = "Unirse a una Partida";
-            createOptionsContainer.classList.add('hidden');
-            gameCodeInputContainer.classList.remove('hidden');
-            confirmActionText.textContent = "Buscar y Unirse";
-        });
-        
-        backToStartBtn.addEventListener('click', () => {
-            initialActions.classList.remove('hidden');
-            detailsEntryScreen.classList.add('hidden');
-            currentAction = null;
-        });
-
-        // --- LÓGICA DEL JUEGO MULTIJUGADOR ---
-        confirmActionBtn.addEventListener('click', async () => {
-            if (!currentUser) return;
-            localPlayerName = playerNameInput.value.trim();
-            if (!localPlayerName) { alert("Por favor, ingresa tu nombre."); return; }
-            actionLoader.classList.remove('hidden');
-            confirmActionBtn.disabled = true;
-            if (currentAction === 'create') {
-                const targetScore = parseInt(targetScoreInput.value, 10);
-                const bastaBonus = parseInt(bastaBonusInput.value, 10);
-                if (isNaN(targetScore) || targetScore <= 0 || isNaN(bastaBonus) || bastaBonus < 0) {
-                    alert("El puntaje y el bonus deben ser números válidos.");
-                } else {
-                    await createGame(localPlayerName, targetScore, bastaBonus);
-                }
-            } else if (currentAction === 'join') {
-                const gameId = gameCodeInput.value.trim().toUpperCase();
-                if (!gameId) { alert("Por favor, ingresa el código de la partida."); } 
-                else { await joinGame(localPlayerName, gameId); }
-            }
-            actionLoader.classList.add('hidden');
-            confirmActionBtn.disabled = false;
-        });
-
-        async function createGame(playerName, targetScore, bastaBonus) {
-            try {
-                const gameId = `JUEGO-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
-                currentGameId = gameId;
-                const player = { id: currentUser.uid, name: playerName, score: 0 };
-                const gameData = {
-                    status: 'waiting', hostId: currentUser.uid, players: [player],
-                    categories: defaultCategories, currentRound: 0, lastScoredRound: 0, responses: {},
-                    targetScore: targetScore, bastaBonus: bastaBonus, winner: null, usedLetters: [],
-                };
-                await setDoc(doc(db, "games", gameId), gameData);
-                listenToGameChanges(gameId);
-                listenToChat(gameId);
-            } catch (error) { showFirebaseError(error); }
-        }
-
-        async function joinGame(playerName, gameId) {
-             try {
-                const gameRef = doc(db, "games", gameId);
-                const gameDoc = await getDoc(gameRef);
-                if (gameDoc.exists() && gameDoc.data().status === 'waiting' && gameDoc.data().players.length < 10) {
-                    currentGameId = gameId;
-                    const player = { id: currentUser.uid, name: playerName, score: 0 };
-                    const players = [...gameDoc.data().players.filter(p => p.id !== currentUser.uid), player];
-                    await updateDoc(gameRef, { players });
-                    listenToGameChanges(gameId);
-                    listenToChat(gameId);
-                } else { alert("Partida no encontrada, llena, o ya ha comenzado."); }
-            } catch (error) { showFirebaseError(error); }
-        }
-
-        function listenToGameChanges(gameId) {
-            if (unsubscribeFromGame) unsubscribeFromGame();
-            unsubscribeFromGame = onSnapshot(doc(db, "games", gameId), (doc) => {
-                const gameData = doc.data();
-                if (!gameData) {
-                    alert("La partida ha terminado o fue eliminada.");
-                    showScreen('start-screen');
-                    if(unsubscribeFromGame) unsubscribeFromGame();
-                    return;
-                };
-                localPlayerIsHost = currentUser.uid === gameData.hostId;
-                let usedLetters = gameData.usedLetters || [];
-                switch(gameData.status) {
-                    case 'waiting':
-                        showScreen('lobby-screen');
-                        updateLobbyUI(gameData);
-                        localRoundNumber = 0;
-                        break;
-                    case 'playing':
-                        showScreen('main-game-screen');
-                        roundTitle.textContent = `Ronda ${gameData.currentRound}`;
-                        letterDisplay.textContent = gameData.currentLetter;
-                        bastaBtn.disabled = false;
-                        if (gameData.currentRound > localRoundNumber) {
-                            localRoundNumber = gameData.currentRound;
-                            buildForm(gameData.categories);
-                            if (debouncedSave) gameForm.removeEventListener('input', debouncedSave);
-                            debouncedSave = debounce(saveMyAnswers, 500);
-                            gameForm.addEventListener('input', debouncedSave);
-                        }
-                        break;
-                    case 'scoring':
-                        showScreen('results-screen');
-                        displayResults(gameData);
-                        bastaBtn.disabled = true;
-                        if (debouncedSave) gameForm.removeEventListener('input', debouncedSave);
-                        break;
-                    case 'finished':
-                        showScreen('winner-screen');
-                        displayWinner(gameData);
-                        break;
-                }
-                const myPlayer = gameData.players.find(p => p.id === currentUser.uid);
-                if(myPlayer) totalScoreDisplay.textContent = myPlayer.score;
-            }, (error) => { showFirebaseError(error); });
-        }
-        
-        function getUniqueLetter(lettersUsed) {
-            if (lettersUsed.length >= letters.length) lettersUsed = []; // Reset if all letters have been used
-            let availableLetters = letters.split('').filter(l => !lettersUsed.includes(l));
-            if (availableLetters.length === 0) return letters[Math.floor(Math.random() * letters.length)];
-            return availableLetters[Math.floor(Math.random() * availableLetters.length)];
-        }
-
-        startGameBtn.addEventListener('click', async () => {
-             try {
-                const gameRef = doc(db, "games", currentGameId);
-                const gameDoc = await getDoc(gameRef);
-                const currentUsedLetters = gameDoc.data().usedLetters || [];
-                const newLetter = getUniqueLetter(currentUsedLetters);
-                await updateDoc(gameRef, {
-                    status: 'playing', currentLetter: newLetter, currentRound: 1, responses: {}, 
-                    usedLetters: [...currentUsedLetters, newLetter], detailedResults: {},
-                });
-             } catch (error) { showFirebaseError(error); }
-        });
-
-        bastaBtn.addEventListener('click', async () => {
-            bastaBtn.disabled = true;
-            await saveMyAnswers();
-            try {
-                const gameRef = doc(db, "games", currentGameId);
-                const gameDoc = await getDoc(gameRef);
-                if (gameDoc.data().status === 'playing') {
-                     await updateDoc(gameRef, { status: 'scoring', bastaPlayer: currentUser.uid });
-                }
-            } catch (error) { showFirebaseError(error); }
-        });
-        
-        nextRoundBtn.addEventListener('click', async () => {
-            try {
-                const gameRef = doc(db, "games", currentGameId);
-                const gameDoc = await getDoc(gameRef);
-                const gameData = gameDoc.data();
-                const newLetter = getUniqueLetter(gameData.usedLetters);
-                await updateDoc(gameRef, {
-                    status: 'playing', currentLetter: newLetter,
-                    currentRound: gameData.currentRound + 1, responses: {}, detailedResults: {}, 
-                    usedLetters: [...gameData.usedLetters, newLetter],
-                });
-            } catch (error) { showFirebaseError(error); }
-        });
-        
-        // --- CHAT Y CATEGORÍAS ---
-        function listenToChat(gameId) {
-            const chatRef = collection(db, "games", gameId, "chat");
-            const q = query(chatRef, orderBy("timestamp", "desc"));
-            if(unsubscribeFromChat) unsubscribeFromChat();
-            unsubscribeFromChat = onSnapshot(q, (snapshot) => {
-                chatMessages.innerHTML = '';
-                snapshot.forEach(doc => {
-                    const msg = doc.data();
-                    const msgEl = document.createElement('p');
-                    msgEl.innerHTML = `<b>${msg.name}:</b> ${msg.text}`;
-                    chatMessages.prepend(msgEl);
-                });
-            });
-        }
-        
-        chatForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const text = chatInput.value.trim();
-            if (text) {
-                const chatRef = collection(db, "games", currentGameId, "chat");
-                await addDoc(chatRef, { name: localPlayerName, text, timestamp: serverTimestamp() });
-                chatInput.value = '';
-            }
-        });
-
-        addCategoryForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const newCatLabel = newCategoryInput.value.trim();
-            if (newCatLabel) {
-                const newCatId = newCatLabel.toLowerCase().replace(/\s+/g, '_');
-                const gameRef = doc(db, "games", currentGameId);
-                const gameDoc = await getDoc(gameRef);
-                const currentCategories = gameDoc.data().categories;
-                if (!currentCategories.find(c => c.id === newCatId)) {
-                    await updateDoc(gameRef, { categories: [...currentCategories, {id: newCatId, label: newCatLabel}] });
-                }
-                newCategoryInput.value = '';
-            }
-        });
-
-        async function removeCategory(categoryId) {
-            const gameRef = doc(db, "games", currentGameId);
-            const gameDoc = await getDoc(gameRef);
-            const currentCategories = gameDoc.data().categories;
-            await updateDoc(gameRef, { categories: currentCategories.filter(c => c.id !== categoryId) });
-        }
-        
-        // --- GUARDADO AUTOMÁTICO, VERIFICACIÓN Y CÁLCULO DE PUNTOS ---
-
-        function debounce(func, delay) {
-            let timeout;
-            return function(...args) { clearTimeout(timeout); timeout = setTimeout(() => func.apply(this, args), delay); };
-        }
-
-        async function saveMyAnswers() {
-            if (!currentGameId || !currentUser) return;
-            const myResponses = {};
-            const gameDoc = await getDoc(doc(db, "games", currentGameId));
-            const currentCategories = gameDoc.data().categories;
-            currentCategories.forEach(cat => {
-                const input = document.getElementById(cat.id);
-                if (input) myResponses[cat.id] = input.value;
-            });
-            const updatePath = `responses.${currentUser.uid}`;
-            try { await updateDoc(doc(db, "games", currentGameId), { [updatePath]: myResponses }); } 
-            catch (error) { console.error("Failed to save answers:", error); }
-        }
-
-        verifyAnswersBtn.addEventListener('click', async () => {
-            verifyLoader.classList.remove('hidden');
-            verifyAnswersBtn.disabled = true;
-            const gameRef = doc(db, "games", currentGameId);
-            const gameDoc = await getDoc(gameRef);
-            const gameData = gameDoc.data();
-            
-            const allResponses = gameData.responses || {};
-            const playerIds = Object.keys(allResponses);
-            const verifiedResults = {};
-            
-            for (const playerId of playerIds) {
-                verifiedResults[playerId] = {};
-                for (const cat of gameData.categories) {
-                    const answer = (allResponses[playerId]?.[cat.id] || "").trim();
-                    if (!answer) {
-                        verifiedResults[playerId][cat.id] = { score: 0 };
-                        continue;
-                    }
-
-                    const prompt = `Evalúa esta respuesta para un juego de Tutti Frutti de forma estricta. Letra: '${gameData.currentLetter}'. Categoría: '${cat.label}'. Respuesta: '${answer}'.\nReglas estrictas:\n1. La respuesta DEBE ser una palabra o término real y relevante para la categoría.\n2. La respuesta DEBE empezar con la letra '${gameData.currentLetter}'.\n3. No se aceptan respuestas de una sola letra (excepto si es un nombre propio reconocido como 'U Thant').\n4. Penaliza errores de ortografía graves.\nDevuelve un JSON con una única clave "score" (number): 10 si es perfecta, 0 si no cumple ALGUNA regla.`;
-                    
-                    try {
-                        // --- IMPORTANTE: Pega tu clave de API de Gemini aquí ---
-                        const apiKey = "AIzaSyCYn5XSl_1Lm8RHtD6ewDifSCipzVmFIWc"; 
-                        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-                        const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } };
-                        const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                        if (!response.ok) throw new Error('API request failed');
-                        const result = await response.json();
-                        verifiedResults[playerId][cat.id] = { score: JSON.parse(result.candidates[0].content.parts[0].text).score };
-                    } catch (e) {
-                        verifiedResults[playerId][cat.id] = { score: 0 }; 
-                        console.error(`Error verifying ${answer} for ${cat.label}:`, e);
-                    }
-                }
-            }
-
-            try { await updateDoc(gameRef, { detailedResults: verifiedResults }); } 
-            catch (error) { showFirebaseError(error); }
-            verifyLoader.classList.add('hidden');
-        });
-
-        async function manualCorrection(playerId, categoryId, correct) {
-            const gameRef = doc(db, "games", currentGameId);
-            let reason = '';
-            if (!correct) {
-                reason = prompt(`¿Por qué la respuesta es incorrecta? (Opcional)`);
-            }
-            const newScore = correct ? 10 : 0;
-            const updatePath = `detailedResults.${playerId}.${categoryId}`;
-            try {
-                await updateDoc(gameRef, {
-                    [updatePath]: { score: newScore, manual: true, reason: reason || '' }
-                });
-            } catch(e) { showFirebaseError(e); }
-        }
-        
-        confirmScoresBtn.addEventListener('click', async () => {
-            confirmScoresBtn.disabled = true;
-            try {
-                const gameRef = doc(db, "games", currentGameId);
-                const gameDoc = await getDoc(gameRef);
-                const gameData = gameDoc.data();
-                
-                const { detailedResults, responses, players, targetScore, bastaBonus, bastaPlayer } = gameData;
-                if (!detailedResults) return;
-
-                const finalScores = {};
-                players.forEach(p => finalScores[p.id] = 0);
-
-                const currentCategories = gameData.categories;
-                currentCategories.forEach(cat => {
-                    const validResponsesCount = {};
-                    players.forEach(p => {
-                        if (detailedResults[p.id]?.[cat.id]?.score === 10) {
-                            const responseUpper = (responses[p.id]?.[cat.id] || "").trim().toUpperCase();
-                            if (responseUpper) validResponsesCount[responseUpper] = (validResponsesCount[responseUpper] || 0) + 1;
-                        }
-                    });
-                    players.forEach(p => {
-                        if (detailedResults[p.id]?.[cat.id]?.score === 10) {
-                            const responseUpper = (responses[p.id]?.[cat.id] || "").trim().toUpperCase();
-                            if (responseUpper) finalScores[p.id] += validResponsesCount[responseUpper] > 1 ? 5 : 10;
-                        }
-                    });
-                });
-                // Añadir bonus por "Basta"
-                if(bastaPlayer && finalScores[bastaPlayer] !== undefined) {
-                    finalScores[bastaPlayer] += bastaBonus || 0;
-                }
-
-                const updatedPlayers = players.map(p => ({ ...p, score: p.score + (finalScores[p.id] || 0) }));
-                
-                const winners = updatedPlayers.filter(p => p.score >= targetScore);
-                
-                if (winners.length > 0) {
-                    const highestScorer = winners.reduce((prev, current) => (prev.score > current.score) ? prev : current);
-                    await updateDoc(gameRef, { status: 'finished', winner: highestScorer.name, players: updatedPlayers });
-                } else {
-                    await updateDoc(gameRef, { players: updatedPlayers, lastScoredRound: gameData.currentRound });
-                }
-            } catch (error) {
-                showFirebaseError(error);
-                confirmScoresBtn.disabled = false;
-            }
-        });
-
-        playAgainBtn.addEventListener('click', async () => {
-            if (!localPlayerIsHost) return;
-            const gameRef = doc(db, "games", currentGameId);
-            const gameDoc = await getDoc(gameRef);
-            const gameData = gameDoc.data();
-            const resetPlayers = gameData.players.map(p => ({ ...p, score: 0 }));
-            await updateDoc(gameRef, {
-                status: 'waiting', players: resetPlayers, currentRound: 0, lastScoredRound: 0,
-                responses: {}, detailedResults: {}, winner: null, usedLetters: [],
-            });
-        });
-
-
-        // --- ACTUALIZACIÓN DE LA UI ---
-        function showScreen(screenIdToShow) {
-            ['start-screen', 'lobby-screen', 'main-game-screen', 'results-screen', 'winner-screen'].forEach(id => {
-                const screen = document.getElementById(id);
-                if (screen) screen.classList.add('hidden');
-            });
-            const targetScreen = document.getElementById(screenIdToShow);
-            if (targetScreen) { targetScreen.classList.remove('hidden'); }
-        }
-
-        function updateLobbyUI(gameData) {
-            lobbyTargetScore.textContent = gameData.targetScore;
-            lobbyBastaBonus.textContent = gameData.bastaBonus;
-            gameIdDisplay.textContent = currentGameId;
-            playerList.innerHTML = gameData.players.map(p => `<li class="p-2 bg-white dark:bg-slate-700 rounded-md shadow-sm flex items-center justify-between"><span><span class="inline-block w-4 h-4 bg-green-400 rounded-full mr-2"></span>${p.name} ${p.id === gameData.hostId ? '(Anfitrión)' : ''}</span><span class="font-bold text-indigo-500">${p.score} pts</span></li>`).join('');
-            
-            // Lógica de categorías para el anfitrión
-            categoryEditorContainer.classList.toggle('hidden', !localPlayerIsHost);
-            if (localPlayerIsHost) {
-                categoryList.innerHTML = gameData.categories.map(cat => `<li class="flex justify-between items-center p-2 bg-white dark:bg-slate-600 rounded-md"><span>${cat.label}</span><button onclick="window.removeCategory('${cat.id}')" class="text-red-500 font-bold">X</button></li>`).join('');
-            }
-            
-            if (localPlayerIsHost) {
-                startGameBtn.classList.remove('hidden');
-                waitingForHostMsg.classList.add('hidden');
-            } else {
-                startGameBtn.classList.add('hidden');
-                waitingForHostMsg.classList.remove('hidden');
-            }
-        }
-        
-        function buildForm(formCategories) {
-            gameForm.innerHTML = formCategories.map(cat => `<div><label for="${cat.id}" class="block text-sm font-medium">${cat.label}</label><input type="text" id="${cat.id}" class="w-full p-3 bg-slate-100 dark:bg-slate-700 rounded-lg mt-1"></div>`).join('');
-        }
-        
-        function displayResults(gameData) {
-            const bastaPlayerName = gameData.players.find(p => p.id === gameData.bastaPlayer)?.name || 'Alguien';
-            let title = `¡${bastaPlayerName} dijo BASTA!`;
-            if(gameData.bastaPlayer && gameData.bastaBonus > 0 && gameData.currentRound <= (gameData.lastScoredRound || 0)) {
-                title += ` (+${gameData.bastaBonus} pts de bonus)`;
-            }
-            resultsTitle.textContent = title;
-            
-            const { detailedResults, responses, players } = gameData;
-            const roundScores = {};
-            players.forEach(p => roundScores[p.id] = 0);
-
-            let resultsHTML = '';
-            gameData.categories.forEach(cat => {
-                resultsHTML += `<div class="bg-slate-100 dark:bg-slate-700 p-3 rounded-lg"><p class="font-bold text-lg">${cat.label}</p><ul class="mt-2 space-y-1">`;
-                
-                const validResponsesCount = {};
-                if (detailedResults) {
-                    players.forEach(p => {
-                        if (detailedResults[p.id]?.[cat.id]?.score === 10) {
-                           const responseUpper = (responses[p.id]?.[cat.id] || "").trim().toUpperCase();
-                           if (responseUpper) validResponsesCount[responseUpper] = (validResponsesCount[responseUpper] || 0) + 1;
-                        }
-                    });
-                }
-
-                players.forEach(player => {
-                    const responseText = (responses?.[player.id]?.[cat.id] || "").trim();
-                    let points = 0;
-                    let icon = '';
-                    let reasonHTML = '';
-                    
-                    if (detailedResults && detailedResults[player.id]?.[cat.id]) {
-                        const result = detailedResults[player.id][cat.id];
-                        if (result.score === 10) {
-                            const responseUpper = responseText.toUpperCase();
-                            points = validResponsesCount[responseUpper] > 1 ? 5 : 10;
-                            icon = points === 10 ? `<span class="text-green-500 font-bold text-lg">✅</span>` : `<span class="text-blue-500 font-bold text-lg">🔷</span>`;
-                        } else {
-                            icon = `<span class="text-red-500 font-bold text-lg">❌</span>`;
-                        }
-                        if (result.manual && result.reason) {
-                            reasonHTML = `<div class="text-xs text-red-500 ml-5 pl-1 border-l-2 border-red-500">Razón: ${result.reason}</div>`;
-                        }
-                    }
-
-                    roundScores[player.id] += points;
-                    
-                    let hostControls = '';
-                    if (localPlayerIsHost && detailedResults && gameData.currentRound > (gameData.lastScoredRound || 0)) {
-                        hostControls = `<div class="flex items-center gap-1">
-                                            <button onclick="window.manualCorrection('${player.id}', '${cat.id}', true)" class="manual-correction-btn correct">✅</button>
-                                            <button onclick="window.manualCorrection('${player.id}', '${cat.id}', false)" class="manual-correction-btn incorrect">❌</button>
-                                        </div>`;
-                    }
-                    
-                    resultsHTML += `<li>
-                                      <div class="text-sm flex justify-between items-center">
-                                          <span><b>${player.name}:</b> ${responseText || '(vacío)'}</span>
-                                          <div class="flex items-center gap-2">
-                                              ${detailedResults ? `${icon} +${points}` : ''}
-                                              ${hostControls}
-                                          </div>
-                                      </div>
-                                      ${reasonHTML}
-                                   </li>`;
-                });
-                resultsHTML += `</ul></div>`;
-            });
-            resultsDisplay.innerHTML = resultsHTML;
-            roundScoreDisplay.textContent = roundScores[currentUser.uid] || 0;
-
-            if (localPlayerIsHost) {
-                resultsButtons.classList.remove('hidden');
-                const resultsAreVerified = detailedResults && Object.keys(detailedResults).length > 0;
-                const roundIsScored = gameData.currentRound <= (gameData.lastScoredRound || 0);
-
-                verifyAnswersBtn.classList.toggle('hidden', resultsAreVerified || roundIsScored);
-                confirmScoresBtn.classList.toggle('hidden', !resultsAreVerified || roundIsScored);
-                nextRoundBtn.classList.toggle('hidden', !roundIsScored);
-                
-                verifyAnswersBtn.disabled = false;
-                confirmScoresBtn.disabled = false;
-            } else {
-                resultsButtons.classList.add('hidden');
-            }
-        }
-        
-        function displayWinner(gameData) {
-            winnerName.textContent = gameData.winner;
-            finalScoresList.innerHTML = gameData.players
-                .sort((a, b) => b.score - a.score)
-                .map(p => `<li class="p-2 bg-white dark:bg-slate-700 rounded-md shadow-sm flex items-center justify-between"><span>${p.name}</span><span class="font-bold text-indigo-500">${p.score} pts</span></li>`)
-                .join('');
-            playAgainBtn.classList.toggle('hidden', !localPlayerIsHost);
-        }
-
-        window.manualCorrection = manualCorrection;
-        window.removeCategory = removeCategory;
-
-        copyGameIdBtn.addEventListener('click', () => {
-            const tempInput = document.createElement('input');
-            tempInput.value = currentGameId;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempInput);
-            alert("¡Código copiado!");
-        });
-    </script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js" type="module"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js" type="module"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js" type="module"></script>
+    
+    <script src="js/firebase.js" type="module"></script>
+    <script src="js/main.js" type="module"></script>
 </body>
 </html>
