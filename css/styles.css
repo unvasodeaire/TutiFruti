@@ -1,168 +1,225 @@
-/* Definiendo nuestra paleta de colores oscuros */
+/* --- PALETA DE COLORES Y VARIABLES GLOBALES --- */
 :root {
-    --bg-primary: #1a202c;       /* Un azul marino/carbón muy oscuro */
-    --bg-card: #2d3748;         /* Un gris azulado para las tarjetas y contenedores */
-    --bg-input: #4a5568;         /* Un gris más claro para los campos de entrada */
-    --text-primary: #edf2f7;     /* Texto principal casi blanco */
-    --text-secondary: #a0aec0;   /* Texto secundario más apagado */
-    --accent: #63b3ed;           /* Un azul vibrante como color de acento */
-    --accent-hover: #4299e1;     /* Versión más oscura del acento para hover */
-    --success: #68d391;          /* Verde para acciones de éxito */
-    --danger: #fc8181;           /* Rojo para acciones de peligro como "Basta" */
+    --bg-primary: #121212; /* Un negro casi puro, muy elegante */
+    --bg-card: #1E1E1E;    /* Un gris muy oscuro para las tarjetas */
+    --bg-input: #2A2A2A;   /* Un gris intermedio para inputs */
+    --border-color: rgba(255, 255, 255, 0.1); /* Borde sutil */
+    
+    --text-primary: #EAEAEA;
+    --text-secondary: #8E8E8E;
+    
+    --accent-blue: #0A84FF;   /* Azul vibrante de iOS/HyperOS */
+    --accent-green: #30D158; /* Verde vibrante */
+    --accent-red: #FF453A;   /* Rojo vibrante */
+
+    --font-sans: 'Poppins', sans-serif;
+    --border-radius-main: 24px; /* Bordes muy redondeados */
+    --border-radius-btn: 9999px; /* Botones tipo "píldora" */
 }
 
+/* --- ESTILOS GLOBALES Y DE FONDO --- */
 body { 
-    font-family: 'Poppins', sans-serif; 
+    font-family: var(--font-sans); 
     background-color: var(--bg-primary);
     color: var(--text-primary);
     transition: background-color 0.3s, color 0.3s;
 
-    /* --- LINEAS NUEVAS PARA CENTRAR --- */
-    display: flex;                /* Activa Flexbox */
-    align-items: center;          /* Centra verticalmente */
-    justify-content: center;      /* Centra horizontalmente */
-    min-height: 100vh;            /* Hace que el body ocupe toda la altura de la pantalla */
+    /* Efecto de fondo sutil */
+    background-image: radial-gradient(circle at 10% 20%, rgba(10, 132, 255, 0.1), transparent 30%),
+                      radial-gradient(circle at 90% 80%, rgba(48, 209, 88, 0.1), transparent 30%);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 1rem;
 }
 
+/* --- CONTENEDOR PRINCIPAL --- */
 #game-container {
     background-color: var(--bg-card);
+    border-radius: var(--border-radius-main);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
 }
 
-/* --- Títulos y Texto --- */
-.text-accent {
-    color: var(--accent);
-}
-.text-text-secondary {
-    color: var(--text-secondary);
-}
-#letter-display {
-    color: var(--accent);
-}
-#winner-name {
-    color: #f6e05e; /* Amarillo para el ganador */
-}
+/* --- TIPOGRAFÍA --- */
+h1, h2, h3 { color: var(--text-primary); }
+#subtitle, label { color: var(--text-secondary); }
+#letter-display, .text-accent { color: var(--accent-blue) !important; }
 
-/* --- Botones con nuevo diseño --- */
+/* --- BOTONES MODERNOS --- */
 button {
-    border-radius: 8px;
-    font-weight: bold;
-    padding: 12px 24px;
     border: none;
+    border-radius: var(--border-radius-btn);
+    font-weight: 600; /* Un poco más grueso */
+    padding: 14px 28px;
     cursor: pointer;
-    transition: background-color 0.2s, transform 0.1s;
+    transition: all 0.2s ease-in-out;
+}
+button:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
 }
 button:active {
-    transform: scale(0.98);
+    transform: translateY(0px) scale(0.98);
 }
 button:disabled {
-    opacity: 0.5;
+    opacity: 0.4;
     cursor: not-allowed;
+    transform: none;
+    filter: none;
 }
+.btn-green { background-color: var(--accent-green); color: black; }
+.btn-blue { background-color: var(--accent-blue); color: white; }
+.btn-red { background-color: var(--accent-red); color: white; }
+#back-to-start-btn { background-color: var(--bg-input); color: var(--text-primary); }
 
-#go-to-create-btn, .btn-green {
-    background-color: var(--success);
-    color: var(--bg-primary);
-}
-#go-to-create-btn:hover, .btn-green:hover {
-    background-color: #48bb78;
-}
-
-#go-to-join-btn, .btn-blue {
-    background-color: var(--accent);
-    color: var(--bg-primary);
-}
-#go-to-join-btn:hover, .btn-blue:hover {
-    background-color: var(--accent-hover);
-}
-
-#basta-btn {
-    background-color: var(--danger);
-    color: var(--bg-primary);
-}
-#basta-btn:hover {
-    background-color: #f56565;
-}
-
-#back-to-start-btn, #close-error-modal {
-    background-color: var(--bg-input);
-    color: var(--text-primary);
-}
-#back-to-start-btn:hover, #close-error-modal:hover {
-    background-color: #718096;
-}
-
-/* --- Inputs y Formularios --- */
+/* --- INPUTS Y FORMULARIOS --- */
 input[type="text"], input[type="number"] {
     background-color: var(--bg-input);
-    border: 2px solid transparent;
-    border-radius: 8px;
-    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 16px; /* Bordes más redondeados */
+    padding: 14px;
     color: var(--text-primary);
-    transition: border-color 0.3s;
+    transition: all 0.2s ease-in-out;
 }
 input[type="text"]:focus, input[type="number"]:focus {
     outline: none;
-    border-color: var(--accent);
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.3);
 }
 
-/* --- EFECTOS VISUALES Y ANIMACIONES --- */
-@keyframes fadeIn { 
-    from { opacity: 0; transform: translateY(-10px); } 
-    to { opacity: 1; transform: translateY(0); } 
+/* --- LISTAS Y ELEMENTOS DE UI --- */
+/* Botones de acción circulares (expulsar/eliminar) */
+.action-btn {
+    background-color: var(--bg-input);
+    color: var(--text-secondary);
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
 }
-.fade-in { 
-    animation: fadeIn 0.5s ease-out forwards; 
+.action-btn:hover {
+    color: var(--text-primary);
+    background-color: var(--accent-red);
 }
-
-/* Efecto de pulso para la letra de la ronda */
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); }
-}
-.pulse {
-    animation: pulse 0.5s ease-in-out;
-}
-
 /* Efecto de hover para listas */
 #player-list li, #category-list li {
     transition: background-color 0.2s, transform 0.2s;
+    background-color: transparent;
+    border-radius: 12px;
 }
 #player-list li:hover, #category-list li:hover {
-    background-color: var(--bg-input) !important; /* Usamos important para sobreescribir tailwind */
-    transform: translateX(5px);
+    background-color: rgba(255, 255, 255, 0.05);
+    transform: scale(1.02);
 }
 
-.loader { 
-    border: 4px solid var(--bg-input); 
-    border-top: 4px solid var(--accent); 
-    border-radius: 50%; 
-    width: 24px; 
-    height: 24px; 
-    animation: spin 1s linear infinite; 
-}
-@keyframes spin { 
-    0% { transform: rotate(0deg); } 
-    100% { transform: rotate(360deg); } 
-}
+/* Loader y Animaciones (sin cambios mayores) */
+.loader { border: 4px solid var(--bg-input); border-top: 4px solid var(--accent-blue); /* ... */ }
+@keyframes fadeIn { /* ... */ } @keyframes pulse { /* ... */ } @keyframes spin { /* ... */ }
+.fade-in { /* ... */ } .pulse { /* ... */ }
+.sortable-ghost { opacity: 0.4; background-color: var(--accent-blue); }
+.sortable-drag { opacity: 0.9 !important; transform: rotate(2deg); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3); }
 
-/* --- ESTILOS PARA REORDENAR CATEGORÍAS --- */
+/* css/style.css */
 
-/* Cambia el cursor para indicar que los elementos se pueden mover */
-#category-list.sortable-active li {
-    cursor: grab;
-}
+/* ... (todos tus estilos existentes) ... */
 
-/* Estilo del elemento "fantasma" que muestra dónde se soltará el item */
-.sortable-ghost {
-    opacity: 0.4;
-    background-color: var(--accent-hover);
+/* --- REDISEÑO PANTALLA DE RESULTADOS (VERSIÓN COMPACTA) --- */
+
+/* Contenedor principal de las tarjetas */
+#results-display {
+    display: grid;
+    /* ESTA LÍNEA ES LA CLAVE: Crea una cuadrícula adaptable */
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 1rem;
 }
 
-/* Estilo del elemento mientras se está arrastrando */
-.sortable-drag {
-    opacity: 0.9 !important;
-    transform: rotate(2deg); /* Ladea ligeramente el elemento al arrastrar */
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+/* El estilo de cada tarjeta de categoría */
+.result-card {
+    background-color: rgba(45, 55, 72, 0.5);
+    border-radius: var(--border-radius-main);
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    /* Añadimos una altura mínima para que las tarjetas de una fila tengan la misma altura */
+    display: flex;
+    flex-direction: column;
 }
 
+/* El encabezado de la tarjeta con el nombre de la categoría */
+.result-card-header {
+    padding: 0.75rem 1.25rem; /* Padding reducido */
+    background-color: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.result-card-header h4 {
+    font-size: 1.1rem; /* Tamaño de fuente reducido */
+    font-weight: 600;
+}
+
+/* La lista de respuestas de los jugadores */
+.result-card-body {
+    padding: 0.5rem 1.25rem 1rem; /* Padding reducido */
+    list-style: none;
+    flex-grow: 1; /* Permite que el cuerpo crezca para llenar el espacio */
+}
+
+.answer-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0; /* Padding reducido */
+    border-bottom: 1px solid var(--border-color);
+}
+
+.answer-row:last-child {
+    border-bottom: none;
+}
+
+
+/* Feedback visual de color para respuestas correctas/incorrectas */
+.answer-row.correct {
+    /* No añadimos fondo para mantenerlo minimalista, el icono es suficiente */
+}
+.answer-row.incorrect .answer-text {
+    color: var(--text-secondary);
+    text-decoration: line-through; /* Tachamos la respuesta incorrecta */
+}
+.answer-row.incorrect .reason-text {
+    color: var(--accent-red);
+}
+
+/* Estilos para el texto de la respuesta y la razón */
+.answer-details {
+    display: flex;
+    flex-direction: column;
+}
+.answer-details b {
+    color: var(--text-primary);
+}
+.answer-details .answer-text {
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+.answer-details .reason-text {
+    font-size: 0.8rem; /* 12.8px */
+    font-style: italic;
+    opacity: 0.8;
+    margin-top: 4px;
+}
+
+/* Contenedor para los puntos y botones de corrección */
+.score-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
