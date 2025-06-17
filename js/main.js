@@ -190,7 +190,8 @@ async function createGame(playerName, targetScore, bastaBonus) {
     try {
         const gameId = `JUEGO-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
         currentGameId = gameId;
-        const player = { id: currentUser.uid, name: playerName, score: 0 };
+        const avatarUrl = `https://api.dicebear.com/8.x/initials/svg?seed=${playerName}`;
+        const player = { id: currentUser.uid, name: playerName, score: 0, avatarUrl: avatarUrl };
 
         // Leemos el modo de juego seleccionado
         const selectedMode = document.querySelector('input[name="game-mode"]:checked').value;
@@ -228,7 +229,9 @@ async function joinGame(playerName, gameId) {
         const gameDoc = await getDoc(gameRef);
         if (gameDoc.exists() && gameDoc.data().status === 'waiting' && gameDoc.data().players.length < 10) {
             currentGameId = gameId;
-            const player = { id: currentUser.uid, name: playerName, score: 0 };
+            const avatarUrl = `https://api.dicebear.com/8.x/initials/svg?seed=${playerName}`;
+            const player = { id: currentUser.uid, name: playerName, score: 0, avatarUrl: avatarUrl };
+            
             const players = [...gameDoc.data().players.filter(p => p.id !== currentUser.uid), player];
             await updateDoc(gameRef, { players });
             listenToGameChanges(gameId);
@@ -241,6 +244,16 @@ function listenToGameChanges(gameId) {
     if (unsubscribeFromGame) unsubscribeFromGame();
     unsubscribeFromGame = onSnapshot(doc(db, "games", gameId), (doc) => {
         const gameData = doc.data();
+        
+        // --- VERIFICACIÓN DE EXPULSIÓN AÑADIDA ---
+        if (gameData && gameData.players && !gameData.players.some(p => p.id === currentUser.uid)) {
+            // Si mi ID ya no está en la lista de jugadores, me han expulsado.
+            alert("Has sido expulsado de la partida por el anfitrión.");
+            // Detenemos la escucha de cambios y recargamos la página para volver al inicio.
+            if (unsubscribeFromGame) unsubscribeFromGame();
+            window.location.reload();
+            return; 
+        }
         if (!gameData) {
             alert("La partida ha terminado o fue eliminada.");
             showScreen('start-screen');
@@ -639,18 +652,16 @@ function showScreen(screenIdToShow) {
 
 
 function updateLobbyUI(gameData) {
+    // --- Renderizado de información básica de la partida ---
     lobbyTargetScore.textContent = gameData.targetScore;
     lobbyBastaBonus.textContent = gameData.bastaBonus;
     gameIdDisplay.textContent = currentGameId;
     
-    // Lógica mejorada para mostrar la lista de jugadores Y el botón de expulsar con ICONO
+    // Renderizado de la lista de jugadores
     playerList.innerHTML = gameData.players.map(p => {
         const isHost = p.id === gameData.hostId;
-        // ICONO DE EXPULSAR
         const kickButton = (localPlayerIsHost && !isHost) 
-            ? `<button onclick="window.kickPlayer('${p.id}', '${p.name}')" class="action-btn" title="Expulsar a ${p.name}">
-                   <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg>
-               </button>` 
+            ? `<button onclick="window.kickPlayer('${p.id}', '${p.name}')" class="action-btn" title="Expulsar a ${p.name}"><svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg></button>` 
             : '';
 
         return `
@@ -666,78 +677,82 @@ function updateLobbyUI(gameData) {
             </li>
         `;
     }).join('');
-    
-    // Mostramos la letra pre-seleccionada si existe
+
+    // --- Lógica principal para la interfaz ---
+    const isClassicMode = gameData.gameMode === 'classic';
+    const themeChooser = gameData.players[gameData.themeChooserIndex];
+    const isMyTurnToChoose = themeChooser?.id === currentUser.uid;
+
+    // Mostramos la sección de categorías solo al anfitrión, ya que contiene los controles
+    categoryEditorContainer.classList.toggle('hidden', !localPlayerIsHost);
+
+    // Si no eres el anfitrión, solo mostramos la lista de categorías sin controles
+    if (!localPlayerIsHost) {
+        categoryList.innerHTML = gameData.categories.map(cat => `<li class="p-3 bg-card rounded-xl shadow-sm"><span>${cat.label}</span></li>`).join('');
+    } else { // Si eres el anfitrión, renderizamos la lista con todos los controles
+        categoryList.innerHTML = gameData.categories.map(cat => `
+            <li data-id="${cat.id}" data-label="${cat.label}" class="flex justify-between items-center p-3 bg-card rounded-xl shadow-sm">
+                <span>${cat.label}</span>
+                <button onclick="window.removeCategory('${cat.id}')" class="action-btn" title="Eliminar categoría"><svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/></svg></button>
+            </li>
+        `).join('');
+    }
+
+    const addCategorySection = document.getElementById('add-category-form');
+    const generateCategoriesSection = document.getElementById('generate-categories-btn').parentElement;
+
+    if (isClassicMode) {
+        if (localPlayerIsHost) {
+            addCategorySection.style.display = 'flex';
+            generateCategoriesSection.style.display = 'none';
+            categoryList.classList.add('sortable-active');
+            Sortable.create(categoryList, {
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                dragClass: 'sortable-drag',
+                onEnd: async (evt) => {
+                    const newCategories = [...evt.to.children].map(item => ({ id: item.dataset.id, label: item.dataset.label }));
+                    await updateDoc(doc(db, "games", currentGameId), { categories: newCategories });
+                }
+            });
+        }
+    } else { // Modo Colaborativo con IA
+        if (localPlayerIsHost) {
+            categoryList.classList.remove('sortable-active');
+            addCategorySection.style.display = 'none';
+            generateCategoriesSection.style.display = 'block';
+        }
+    }
+
+    // Lógica para mensajes de espera y letra sugerida
     const nextLetterInfo = document.getElementById('next-letter-info');
     const lobbyNextLetter = document.getElementById('lobby-next-letter');
+    waitingForHostMsg.classList.add('hidden');
+    
     if (gameData.preselectedLetter) {
         lobbyNextLetter.textContent = gameData.preselectedLetter;
         nextLetterInfo.classList.remove('hidden');
     } else {
         nextLetterInfo.classList.add('hidden');
+        if (!isClassicMode) {
+            waitingForHostMsg.textContent = `Esperando que ${themeChooser?.name || 'alguien'} elija el tema...`;
+            waitingForHostMsg.classList.remove('hidden');
+        }
     }
-
-    // Lógica principal para mostrar los controles correctos
-    categoryEditorContainer.classList.toggle('hidden', !localPlayerIsHost);
     
+    // Lógica para el botón de Empezar Juego (solo para el anfitrión)
     if (localPlayerIsHost) {
-        // Renderizamos la lista de categorías con un ICONO para eliminar
-        categoryList.innerHTML = gameData.categories.map(cat => `
-            <li data-id="${cat.id}" data-label="${cat.label}" class="flex justify-between items-center p-3 bg-card rounded-xl shadow-sm">
-                <span>${cat.label}</span>
-                <button onclick="window.removeCategory('${cat.id}')" class="action-btn" title="Eliminar categoría">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/></svg>
-                </button>
-            </li>
-        `).join('');
-
-        const addCategorySection = document.getElementById('add-category-form');
-        const generateCategoriesSection = document.getElementById('generate-categories-btn').parentElement;
-        
-        if (gameData.gameMode === 'classic') {
-            categoryList.classList.add('sortable-active');
-            Sortable.create(categoryList, { /* ... tu código de SortableJS ... */ });
-            addCategorySection.style.display = 'flex';
-            generateCategoriesSection.style.display = 'none';
-            startGameBtn.classList.remove('hidden');
-            waitingForHostMsg.classList.add('hidden');
-        } else { // Modo 'ai_collaborative'
-            categoryList.classList.remove('sortable-active'); // No se puede reordenar en modo IA
-            const themeChooser = gameData.players[gameData.themeChooserIndex];
-            const isMyTurnToChoose = themeChooser?.id === currentUser.uid;
-
-            addCategorySection.style.display = 'none';
-            generateCategoriesSection.style.display = isMyTurnToChoose ? 'block' : 'none';
-
-            // El botón de empezar solo lo ve el anfitrión y solo si ya se ha elegido una letra
-            startGameBtn.classList.toggle('hidden', !localPlayerIsHost || !gameData.preselectedLetter);
-            
-            // Mensaje de espera para todos
-            if (isMyTurnToChoose) {
-                waitingForHostMsg.textContent = 'Es tu turno de elegir un tema usando el botón "Generar con IA".';
-            } else {
-                waitingForHostMsg.textContent = `Esperando que ${themeChooser?.name || 'alguien'} elija el tema de la ronda...`;
-            }
-            waitingForHostMsg.classList.remove('hidden');
+        const canStart = isClassicMode || (!isClassicMode && gameData.preselectedLetter);
+        startGameBtn.classList.toggle('hidden', !canStart);
+        if (!canStart && !isClassicMode) {
+             waitingForHostMsg.classList.remove('hidden');
         }
-    } else { // Vista para jugadores que no son anfitriones
-        categoryList.innerHTML = gameData.categories.map(cat => `<li class="p-2 bg-card rounded-md shadow-sm"><span>${cat.label}</span></li>`).join('');
-        if (gameData.gameMode === 'ai_collaborative') {
-            const themeChooser = gameData.players[gameData.themeChooserIndex];
-            const isMyTurnToChoose = themeChooser?.id === currentUser.uid;
-            
-            waitingForHostMsg.classList.remove('hidden');
-            if (isMyTurnToChoose) {
-                waitingForHostMsg.textContent = '¡Es tu turno! El anfitrión ha habilitado el botón para que generes el tema.';
-                // Nota: El botón en sí está en la sección del anfitrión, pero esta lógica es para el texto.
-            } else {
-                waitingForHostMsg.textContent = `Esperando que ${themeChooser?.name || 'alguien'} elija el tema...`;
-            }
-        } else {
-            waitingForHostMsg.textContent = 'Esperando que el anfitrión inicie la partida...';
-            waitingForHostMsg.classList.remove('hidden');
-        }
+    } else {
         startGameBtn.classList.add('hidden');
+        // Si no soy anfitrión y es modo IA, también muestro el mensaje de espera
+        if (!isClassicMode && !gameData.preselectedLetter) {
+            waitingForHostMsg.classList.remove('hidden');
+        }
     }
 }
 
@@ -746,13 +761,11 @@ function buildForm(formCategories) {
 }
 
 
-// js/main.js
 
 function displayResults(gameData) {
     const { detailedResults, responses, players, bastaPlayer, currentRound, lastScoredRound } = gameData;
     const roundIsScored = currentRound <= (lastScoredRound || 0);
 
-    // Obtenemos referencias a los contenedores
     const resultsDisplayContainer = document.getElementById('results-display');
     const standingsContainer = document.getElementById('standings-container');
     const roundScoreEl = document.getElementById('round-score').parentElement;
@@ -761,72 +774,81 @@ function displayResults(gameData) {
     resultsTitle.textContent = `¡${bastaPlayerName} dijo BASTA!`;
 
     if (roundIsScored) {
-        // --- VISTA 1: TABLA DE POSICIONES ---
-        
-        // Controlamos la visibilidad directamente con style.display
+        // --- VISTA 1: TABLA DE POSICIONES (CÓDIGO COMPLETO) ---
         resultsDisplayContainer.style.display = 'none';
         standingsContainer.style.display = 'block';
         roundScoreEl.style.display = 'none';
 
-        const standingsList = document.getElementById('standings-list');
         const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
+        const topThree = sortedPlayers.slice(0, 3);
+        const restOfPlayers = sortedPlayers.slice(3);
         
-        standingsList.innerHTML = sortedPlayers.map((p, index) => `
-            <li class="p-3 rounded-xl flex justify-between items-center text-lg ${index === 0 ? 'bg-yellow-500 bg-opacity-20' : 'bg-white bg-opacity-5'}">
-                <span class="font-semibold">${index + 1}. ${p.name}</span>
-                <span class="font-bold">${p.score} pts</span>
-            </li>
-        `).join('');
+        const titleHTML = `<h3 class="text-3xl font-bold text-center mb-8 text-accent">Tabla de Posiciones</h3>`;
+        
+        let podiumHTML = '<div class="leaderboard-podium">';
+        const podiumOrder = [1, 0, 2]; // Orden para dibujar 2do, 1ero, 3ro
+
+        podiumOrder.forEach(index => {
+            const player = topThree[index];
+            if (!player) return;
+
+            const isFirstPlace = index === 0;
+            const crown = isFirstPlace 
+                ? `<div class="crown-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M19.467 5.426L14.733 8.36l-2.733-5.693-2.733 5.693L4.533 5.426 2 16h20l-2.533-10.574zM12 10.333a2.333 2.333 0 100-4.666 2.333 2.333 0 000 4.666zM21 18H3v2h18v-2z"></path></svg></div>` 
+                : '';
+
+            podiumHTML += `
+                <div class="podium-place place-${index + 1}">
+                    <div class="podium-avatar-wrapper">
+                        ${crown}
+                        <img src="${player.avatarUrl}" alt="${player.name}" class="podium-avatar">
+                    </div>
+                    <div class="podium-name">${player.name}</div>
+                    <div class="podium-score">${player.score} pts</div>
+                    <div class="podium-step">${index + 1}</div>
+                </div>
+            `;
+        });
+        podiumHTML += '</div>';
+
+        let listHTML = '<ul class="leaderboard-list space-y-2">';
+        restOfPlayers.forEach((player, index) => {
+            listHTML += `
+                <li class="leaderboard-list-item">
+                    <span class="rank">${index + 4}</span>
+                    <img src="${player.avatarUrl}" alt="${player.name}" class="list-avatar">
+                    <span class="list-name">${player.name}</span>
+                    <span class="list-score">${player.score} pts</span>
+                </li>
+            `;
+        });
+        listHTML += '</ul>';
+
+        standingsContainer.innerHTML = titleHTML + podiumHTML + listHTML;
         
     } else {
         // --- VISTA 2: DESGLOSE DE LA RONDA ---
-
-        // Controlamos la visibilidad directamente con style.display
-        resultsDisplayContainer.style.display = 'grid'; // Lo mostramos como grid
+        resultsDisplayContainer.style.display = 'grid';
         standingsContainer.style.display = 'none';
         roundScoreEl.style.display = 'block';
 
         const roundScores = {};
         players.forEach(p => roundScores[p.id] = 0);
         let resultsHTML = '';
-        
-        // (Aquí va toda tu lógica para construir las tarjetas, que ya estaba bien.
-        // La pego completa abajo para que no haya dudas)
         gameData.categories.forEach(cat => {
             resultsHTML += `<div class="result-card"><div class="result-card-header"><h4>${cat.label}</h4></div><ul class="result-card-body">`;
             const validResponsesCount = {};
-            if (detailedResults) {
-                players.forEach(p => {
-                    if (detailedResults[p.id]?.[cat.id]?.score === 10) {
-                        const responseUpper = (responses[p.id]?.[cat.id] || "").trim().toUpperCase();
-                        if (responseUpper) validResponsesCount[responseUpper] = (validResponsesCount[responseUpper] || 0) + 1;
-                    }
-                });
-            }
+            if (detailedResults) { players.forEach(p => { if (detailedResults[p.id]?.[cat.id]?.score === 10) { const r = (responses[p.id]?.[cat.id] || "").trim().toUpperCase(); if (r) validResponsesCount[r] = (validResponsesCount[r] || 0) + 1; } }); }
             players.forEach(player => {
                 const responseText = (responses?.[player.id]?.[cat.id] || "").trim();
-                let points = 0;
-                let icon = '';
-                let reasonText = '';
-                let rowClass = 'correct';
+                let points = 0; let icon = ''; let reasonText = ''; let rowClass = 'correct';
                 if (detailedResults && detailedResults[player.id]?.[cat.id]) {
                     const result = detailedResults[player.id][cat.id];
-                    if (result.score === 10) {
-                        const responseUpper = responseText.toUpperCase();
-                        points = validResponsesCount[responseUpper] > 1 ? 5 : 10;
-                        icon = points === 10 ? `<span class="text-green-400">✅</span>` : `<span class="text-blue-400">🔷</span>`;
-                    } else {
-                        rowClass = 'incorrect';
-                        icon = `<span class="text-red-400">❌</span>`;
-                        if (result.reason) { reasonText = `<div class="reason-text">${result.reason}</div>`; }
-                    }
+                    if (result.score === 10) { const rUpper = responseText.toUpperCase(); points = validResponsesCount[rUpper] > 1 ? 5 : 10; icon = points === 10 ? `<span class="text-green-400">✅</span>` : `<span class="text-blue-400">🔷</span>`; } else { rowClass = 'incorrect'; icon = `<span class="text-red-400">❌</span>`; if (result.reason) { reasonText = `<div class="reason-text">${result.reason}</div>`; } }
                 }
                 roundScores[player.id] += points;
                 let hostControls = '';
-                if (localPlayerIsHost && detailedResults && !roundIsScored) {
-                    hostControls = `<button onclick="window.manualCorrection('${player.id}', '${cat.id}', true)" class="action-btn" title="Marcar como correcta">✅</button>
-                                  <button onclick="window.manualCorrection('${player.id}', '${cat.id}', false)" class="action-btn" title="Marcar como incorrecta">❌</button>`;
-                }
+                if (localPlayerIsHost && detailedResults && !roundIsScored) { hostControls = `<button onclick="window.manualCorrection('${player.id}', '${cat.id}', true)" class="action-btn" title="Marcar como correcta">✅</button><button onclick="window.manualCorrection('${player.id}', '${cat.id}', false)" class="action-btn" title="Marcar como incorrecta">❌</button>`; }
                 resultsHTML += `<li class="answer-row ${rowClass}"><div class="answer-details"><b>${player.name}:</b><span class="answer-text">${responseText || '(vacío)'}</span>${reasonText}</div><div class="score-controls"><span>${icon} +${points}</span>${hostControls}</div></li>`;
             });
             resultsHTML += `</ul></div>`;
@@ -835,7 +857,7 @@ function displayResults(gameData) {
         document.getElementById('round-score').textContent = roundScores[currentUser.uid] || 0;
     }
 
-    // La lógica de los botones de abajo se mantiene igual
+    // Lógica de botones
     if (localPlayerIsHost) {
         resultsButtons.classList.remove('hidden');
         const isVerified = detailedResults && Object.keys(detailedResults).length > 0;
