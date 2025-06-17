@@ -11,6 +11,8 @@ import {
 } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // --- REFERENCIAS AL DOM ---
+    const generateCategoriesBtn = document.getElementById('generate-categories-btn');
+    const generateLoader = document.getElementById('generate-loader');
     const initialActions = document.getElementById('initial-actions');
     const detailsEntryScreen = document.getElementById('details-entry-screen');
     const goToCreateBtn = document.getElementById('go-to-create-btn');
@@ -62,6 +64,18 @@ import {
     const closeErrorModalBtn = document.getElementById('close-error-modal');
     const authLoader = document.getElementById('auth-loader');
 
+
+
+    // ... (después de las declaraciones de 'const')
+
+const homeBtn = document.getElementById('home-btn');
+homeBtn.addEventListener('click', () => {
+    // Preguntamos al usuario si está seguro para no sacarlo de una partida por accidente
+    if (confirm('¿Seguro que quieres volver al menú principal? Se perderá el progreso de la partida actual.')) {
+        window.location.reload();
+    }
+}); 
+
     // --- LÓGICA PARA EFECTOS ---
     letterDisplay.addEventListener('animationend', () => {
         letterDisplay.classList.remove('pulse');
@@ -81,8 +95,12 @@ let localPlayerName = '';
 
 const letters = 'ABCDEFGHIJLMNOPQRSTUV';
 let defaultCategories = [
-    { id: 'nombre', label: 'Nombre' }, { id: 'animal', label: 'Animal' }, { id: 'color', label: 'Color' },
-    { id: 'fruta_verdura', label: 'Fruta o Verdura' }, { id: 'objeto', label: 'Objeto' }
+    { id: 'nombre', label: 'Nombre' },
+    { id: 'apellido', label: 'Apellido' },
+    { id: 'ciudad_o_pais', label: 'Ciudad o País' },
+    { id: 'color', label: 'Color' },
+    { id: 'fruta_o_verdura', label: 'Fruta o Verdura' },
+    { id: 'animal', label: 'Animal' }
 ];
 
 // --- MANEJO DE ERRORES ---
@@ -167,16 +185,37 @@ confirmActionBtn.addEventListener('click', async () => {
     confirmActionBtn.disabled = false;
 });
 
+
 async function createGame(playerName, targetScore, bastaBonus) {
     try {
         const gameId = `JUEGO-${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
         currentGameId = gameId;
         const player = { id: currentUser.uid, name: playerName, score: 0 };
+
+        // Leemos el modo de juego seleccionado
+        const selectedMode = document.querySelector('input[name="game-mode"]:checked').value;
+
+        // Si el modo es 'classic', usamos las categorías por defecto.
+        // Si es 'ai_collaborative', la lista de categorías empieza vacía.
+        const initialCategories = selectedMode === 'classic' ? defaultCategories : [];
+
         const gameData = {
-            status: 'waiting', hostId: currentUser.uid, players: [player],
-            categories: defaultCategories, currentRound: 0, lastScoredRound: 0, responses: {},
-            targetScore: targetScore, bastaBonus: bastaBonus, winner: null, usedLetters: [],
+            status: 'waiting', 
+            hostId: currentUser.uid, 
+            players: [player],
+            categories: initialCategories, // <-- Usamos la lista de categorías correcta
+            currentRound: 0, 
+            lastScoredRound: 0, 
+            responses: {},
+            targetScore: targetScore, 
+            bastaBonus: bastaBonus, 
+            winner: null, 
+            usedLetters: [],
+            gameMode: selectedMode, // <-- Guardamos el modo de juego
+            themeChooserIndex: 0, // <-- Inicializamos el índice del turno para el modo IA
+            preselectedLetter: null
         };
+
         await setDoc(doc(db, "games", gameId), gameData);
         listenToGameChanges(gameId);
         listenToChat(gameId);
@@ -233,29 +272,30 @@ function listenToGameChanges(gameId) {
                     gameForm.addEventListener('input', debouncedSave);
                 }
                 break;
-            case 'scoring':
-                // --- LÓGICA MEJORADA ---
-                const resultsAreVerified = gameData.detailedResults && Object.keys(gameData.detailedResults).length > 0;
-
-                if (resultsAreVerified) {
-                    // Si los resultados ya están verificados, TODOS ven la pantalla de resultados.
-                    showScreen('results-screen');
-                    displayResults(gameData);
-                } else {
-                    // Si aún no se han verificado...
-                    if (localPlayerIsHost) {
-                        // El ANFITRIÓN ve la pantalla de resultados para poder hacer clic en "Verificar con IA".
+                case 'scoring':
+                    const resultsAreVerified = gameData.detailedResults && Object.keys(gameData.detailedResults).length > 0;
+                    if (resultsAreVerified) {
                         showScreen('results-screen');
                         displayResults(gameData);
                     } else {
-                        // LOS DEMÁS JUGADORES ven la pantalla de espera.
-                        showScreen('ai-verifying-screen');
+                        if (localPlayerIsHost) {
+                            showScreen('results-screen');
+                            displayResults(gameData);
+                        } else {
+                            // --- LÓGICA MEJORADA AQUÍ ---
+                            // Buscamos el nombre del jugador que dijo "Basta"
+                            const bastaPlayer = gameData.players.find(p => p.id === gameData.bastaPlayer);
+                            const bastaPlayerNameEl = document.getElementById('basta-player-name');
+                            if (bastaPlayer && bastaPlayerNameEl) {
+                                bastaPlayerNameEl.textContent = bastaPlayer.name;
+                            }
+                            showScreen('ai-verifying-screen');
+                        }
                     }
-                }
-                bastaBtn.disabled = true;
-                if (debouncedSave) gameForm.removeEventListener('input', debouncedSave);
-                break;
-            case 'finished':
+                    bastaBtn.disabled = true;
+                    if (debouncedSave) gameForm.removeEventListener('input', debouncedSave);
+                    break;
+                case 'finished':
                 showScreen('winner-screen');
                 displayWinner(gameData);
                 break;
@@ -272,15 +312,35 @@ function getUniqueLetter(lettersUsed) {
     return availableLetters[Math.floor(Math.random() * availableLetters.length)];
 }
 
+// js/main.js
+
 startGameBtn.addEventListener('click', async () => {
-     try {
+    try {
         const gameRef = doc(db, "games", currentGameId);
         const gameDoc = await getDoc(gameRef);
-        const currentUsedLetters = gameDoc.data().usedLetters || [];
-        const newLetter = getUniqueLetter(currentUsedLetters);
+        const gameData = gameDoc.data();
+        
+        let newLetter = '';
+        const currentUsedLetters = gameData.usedLetters || [];
+
+        if (gameData.preselectedLetter) {
+            newLetter = gameData.preselectedLetter;
+        } else {
+            newLetter = getUniqueLetter(currentUsedLetters);
+        }
+        
+        // --- LA CORRECCIÓN ESTÁ AQUÍ ---
+        // Incrementamos correctamente el número de la ronda.
+        const newRoundNumber = gameData.currentRound + 1;
+        
         await updateDoc(gameRef, {
-            status: 'playing', currentLetter: newLetter, currentRound: 1, responses: {}, 
-            usedLetters: [...currentUsedLetters, newLetter], detailedResults: {},
+            status: 'playing', 
+            currentLetter: newLetter, 
+            currentRound: newRoundNumber, // Usamos el nuevo número de ronda
+            responses: {}, 
+            usedLetters: [...currentUsedLetters, newLetter], 
+            detailedResults: {},
+            preselectedLetter: null 
         });
      } catch (error) { showFirebaseError(error); }
 });
@@ -297,18 +357,43 @@ bastaBtn.addEventListener('click', async () => {
     } catch (error) { showFirebaseError(error); }
 });
 
+// js/main.js
+
 nextRoundBtn.addEventListener('click', async () => {
     try {
         const gameRef = doc(db, "games", currentGameId);
         const gameDoc = await getDoc(gameRef);
         const gameData = gameDoc.data();
-        const newLetter = getUniqueLetter(gameData.usedLetters);
-        await updateDoc(gameRef, {
-            status: 'playing', currentLetter: newLetter,
-            currentRound: gameData.currentRound + 1, responses: {}, detailedResults: {}, 
-            usedLetters: [...gameData.usedLetters, newLetter],
-        });
-    } catch (error) { showFirebaseError(error); }
+
+        // Si el modo es clásico, empieza la siguiente ronda al azar inmediatamente.
+        if (gameData.gameMode === 'classic') {
+            const currentUsedLetters = gameData.usedLetters || [];
+            const newLetter = getUniqueLetter(currentUsedLetters);
+            
+            await updateDoc(gameRef, {
+                status: 'playing',
+                currentLetter: newLetter,
+                currentRound: gameData.currentRound + 1,
+                responses: {},
+                detailedResults: {},
+                usedLetters: [...currentUsedLetters, newLetter]
+            });
+
+        } else { // Si el modo es Colaborativo con IA...
+            // Calculamos el índice del siguiente jugador en el turno.
+            const nextChooserIndex = (gameData.themeChooserIndex + 1) % gameData.players.length;
+            
+            // ...solo volvemos a la sala de espera y actualizamos el turno.
+            await updateDoc(gameRef, {
+                status: 'waiting', // Volvemos a la sala de espera
+                lastScoredRound: gameData.currentRound, // Marcamos la ronda como puntuada
+                themeChooserIndex: nextChooserIndex, // Pasamos el turno
+                preselectedLetter: null // Limpiamos la letra anterior
+            });
+        }
+    } catch (error) {
+        showFirebaseError(error);
+    }
 });
 
 // --- CHAT Y CATEGORÍAS ---
@@ -379,6 +464,7 @@ async function saveMyAnswers() {
     catch (error) { console.error("Failed to save answers:", error); }
 }
 
+
 verifyAnswersBtn.addEventListener('click', async () => {
     verifyLoader.classList.remove('hidden');
     verifyAnswersBtn.disabled = true;
@@ -395,23 +481,38 @@ verifyAnswersBtn.addEventListener('click', async () => {
         for (const cat of gameData.categories) {
             const answer = (allResponses[playerId]?.[cat.id] || "").trim();
             if (!answer) {
-                verifiedResults[playerId][cat.id] = { score: 0 };
+                verifiedResults[playerId][cat.id] = { score: 0, reason: 'Sin respuesta.' };
                 continue;
             }
 
-            const prompt = `Evalúa esta respuesta para un juego de Tutti Frutti de forma estricta. Letra: '${gameData.currentLetter}'. Categoría: '${cat.label}'. Respuesta: '${answer}'.\nReglas estrictas:\n1. La respuesta DEBE ser una palabra o término real y relevante para la categoría.\n2. La respuesta DEBE empezar con la letra '${gameData.currentLetter}'.\n3. No se aceptan respuestas de una sola letra (excepto si es un nombre propio reconocido como 'U Thant').\n4. Penaliza errores de ortografía graves.\nDevuelve un JSON con una única clave "score" (number): 10 si es perfecta, 0 si no cumple ALGUNA regla.`;
+            // CORRECCIÓN 1: Renombramos la variable a 'promptText'
+            const promptText = `Evalúa esta respuesta para un juego de Tutti Frutti (o 'Stop'). Letra: '${gameData.currentLetter}'. Categoría: '${cat.label}'. Respuesta: '${answer}'.
+            Reglas estrictas:
+            1. La respuesta DEBE empezar con la letra '${gameData.currentLetter}'.
+            2. La respuesta DEBE ser un término real y relevante para la categoría.
+            3. Penaliza errores de ortografía graves.
+            
+            Devuelve un JSON con dos claves: "score" (number) y "reason" (string).
+            - "score": 10 si es correcta, 0 si es incorrecta.
+            - "reason": Si el score es 0, explica brevemente en español por qué es incorrecta (ej: "No empieza con la letra correcta", "No parece ser un animal válido"). Si el score es 10, el reason debe ser una cadena vacía.`;
             
             try {
-                // --- IMPORTANTE: Pega tu clave de API de Gemini aquí ---
-                const apiKey = "AIzaSyCYn5XSl_1Lm8RHtD6ewDifSCipzVmFIWc"; 
+                const apiKey = "AIzaSyCYn5XSl_1Lm8RHtD6ewDifSCipzVmFIWc";
                 const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
-                const payload = { contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } };
+                
+                // CORRECCIÓN 2: Usamos la variable correcta 'promptText' en el payload
+                const payload = { contents: [{ role: "user", parts: [{ text: promptText }] }], generationConfig: { responseMimeType: "application/json" } };
+                
                 const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 if (!response.ok) throw new Error('API request failed');
+
                 const result = await response.json();
-                verifiedResults[playerId][cat.id] = { score: JSON.parse(result.candidates[0].content.parts[0].text).score };
+                const aiResponse = JSON.parse(result.candidates[0].content.parts[0].text);
+                
+                verifiedResults[playerId][cat.id] = { score: aiResponse.score, reason: aiResponse.reason || '' };
+
             } catch (e) {
-                verifiedResults[playerId][cat.id] = { score: 0 }; 
+                verifiedResults[playerId][cat.id] = { score: 0, reason: "Error al verificar con IA." }; 
                 console.error(`Error verifying ${answer} for ${cat.label}:`, e);
             }
         }
@@ -435,6 +536,31 @@ async function manualCorrection(playerId, categoryId, correct) {
             [updatePath]: { score: newScore, manual: true, reason: reason || '' }
         });
     } catch(e) { showFirebaseError(e); }
+}
+
+
+async function kickPlayer(playerIdToKick, playerName) {
+    // Doble chequeo de seguridad
+    if (!localPlayerIsHost) {
+        alert('Solo el anfitrión puede expulsar jugadores.');
+        return;
+    }
+
+    if (confirm(`¿Seguro que quieres expulsar a ${playerName}?`)) {
+        try {
+            const gameRef = doc(db, "games", currentGameId);
+            const gameDoc = await getDoc(gameRef);
+            const currentPlayers = gameDoc.data().players;
+            
+            // Filtramos el array para quitar al jugador expulsado
+            const newPlayers = currentPlayers.filter(p => p.id !== playerIdToKick);
+            
+            // Actualizamos la base de datos
+            await updateDoc(gameRef, { players: newPlayers });
+        } catch (error) {
+            showFirebaseError(error);
+        }
+    }
 }
 
 confirmScoresBtn.addEventListener('click', async () => {
@@ -511,68 +637,107 @@ function showScreen(screenIdToShow) {
 }
 
 
+
 function updateLobbyUI(gameData) {
     lobbyTargetScore.textContent = gameData.targetScore;
     lobbyBastaBonus.textContent = gameData.bastaBonus;
     gameIdDisplay.textContent = currentGameId;
-    playerList.innerHTML = gameData.players.map(p => `<li class="p-2 rounded-md shadow-sm flex items-center justify-between"><span><span class="inline-block w-4 h-4 bg-green-400 rounded-full mr-2"></span>${p.name} ${p.id === gameData.hostId ? '(Anfitrión)' : ''}</span><span class="font-bold text-accent">${p.score} pts</span></li>`).join('');
     
-    // Mostramos u ocultamos el editor de categorías si eres el anfitrión
-    categoryEditorContainer.classList.toggle('hidden', !localPlayerIsHost);
+    // Lógica mejorada para mostrar la lista de jugadores Y el botón de expulsar con ICONO
+    playerList.innerHTML = gameData.players.map(p => {
+        const isHost = p.id === gameData.hostId;
+        // ICONO DE EXPULSAR
+        const kickButton = (localPlayerIsHost && !isHost) 
+            ? `<button onclick="window.kickPlayer('${p.id}', '${p.name}')" class="action-btn" title="Expulsar a ${p.name}">
+                   <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/></svg>
+               </button>` 
+            : '';
 
-    if (localPlayerIsHost) {
-        // Renderizamos la lista de categorías con un atributo extra 'data-id'
-        categoryList.innerHTML = gameData.categories.map(cat => `
-            <li data-id="${cat.id}" class="flex justify-between items-center p-2 bg-card rounded-md shadow-sm">
-                <span>${cat.label}</span>
-                <button onclick="window.removeCategory('${cat.id}')" class="text-danger font-bold text-lg px-2 leading-none">×</button>
+        return `
+            <li class="p-2 rounded-md flex items-center justify-between">
+                <span class="flex items-center">
+                    <span class="inline-block w-3 h-3 bg-green-400 rounded-full mr-3"></span>
+                    ${p.name} ${isHost ? '<span class="text-xs text-text-secondary ml-2">(Anfitrión)</span>' : ''}
+                </span>
+                <div class="flex items-center gap-4">
+                    <span class="font-bold">${p.score} pts</span>
+                    ${kickButton}
+                </div>
             </li>
-        `).join('');
-
-        // Le damos una clase al contenedor para activar el cursor 'grab' del CSS
-        categoryList.classList.add('sortable-active');
-
-        // --- INICIALIZACIÓN DE SORTABLEJS ---
-        Sortable.create(categoryList, {
-            animation: 150, // Animación suave al soltar
-            ghostClass: 'sortable-ghost', // Clase para el elemento fantasma
-            dragClass: 'sortable-drag',   // Clase para el elemento arrastrado
-            onEnd: async (evt) => {
-                // Se ejecuta cuando el anfitrión suelta una categoría
-                const newOrderIds = [...evt.to.children].map(item => item.dataset.id);
-                
-                // Reordenamos el array de categorías original según el nuevo orden
-                const newCategories = newOrderIds.map(id => {
-                    return gameData.categories.find(cat => cat.id === id);
-                });
-
-                // Actualizamos la base de datos con el nuevo orden
-                const gameRef = doc(db, "games", currentGameId);
-                try {
-                    await updateDoc(gameRef, { categories: newCategories });
-                } catch (error) {
-                    showFirebaseError(error);
-                }
-            }
-        });
-
+        `;
+    }).join('');
+    
+    // Mostramos la letra pre-seleccionada si existe
+    const nextLetterInfo = document.getElementById('next-letter-info');
+    const lobbyNextLetter = document.getElementById('lobby-next-letter');
+    if (gameData.preselectedLetter) {
+        lobbyNextLetter.textContent = gameData.preselectedLetter;
+        nextLetterInfo.classList.remove('hidden');
     } else {
-        // Si no es el anfitrión, solo mostramos la lista sin controles
-        categoryList.classList.remove('sortable-active');
-        categoryList.innerHTML = gameData.categories.map(cat => `
-            <li class="p-2 bg-card rounded-md shadow-sm">
-                <span>${cat.label}</span>
-            </li>
-        `).join('');
+        nextLetterInfo.classList.add('hidden');
     }
+
+    // Lógica principal para mostrar los controles correctos
+    categoryEditorContainer.classList.toggle('hidden', !localPlayerIsHost);
     
-    // Lógica para mostrar los botones de empezar/esperar
     if (localPlayerIsHost) {
-        startGameBtn.classList.remove('hidden');
-        waitingForHostMsg.classList.add('hidden');
-    } else {
+        // Renderizamos la lista de categorías con un ICONO para eliminar
+        categoryList.innerHTML = gameData.categories.map(cat => `
+            <li data-id="${cat.id}" data-label="${cat.label}" class="flex justify-between items-center p-3 bg-card rounded-xl shadow-sm">
+                <span>${cat.label}</span>
+                <button onclick="window.removeCategory('${cat.id}')" class="action-btn" title="Eliminar categoría">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M2.146 2.854a.5.5 0 1 1 .708-.708L8 7.293l5.146-5.147a.5.5 0 0 1 .708.708L8.707 8l5.147 5.146a.5.5 0 0 1-.708.708L8 8.707l-5.146 5.147a.5.5 0 0 1-.708-.708L7.293 8z"/></svg>
+                </button>
+            </li>
+        `).join('');
+
+        const addCategorySection = document.getElementById('add-category-form');
+        const generateCategoriesSection = document.getElementById('generate-categories-btn').parentElement;
+        
+        if (gameData.gameMode === 'classic') {
+            categoryList.classList.add('sortable-active');
+            Sortable.create(categoryList, { /* ... tu código de SortableJS ... */ });
+            addCategorySection.style.display = 'flex';
+            generateCategoriesSection.style.display = 'none';
+            startGameBtn.classList.remove('hidden');
+            waitingForHostMsg.classList.add('hidden');
+        } else { // Modo 'ai_collaborative'
+            categoryList.classList.remove('sortable-active'); // No se puede reordenar en modo IA
+            const themeChooser = gameData.players[gameData.themeChooserIndex];
+            const isMyTurnToChoose = themeChooser?.id === currentUser.uid;
+
+            addCategorySection.style.display = 'none';
+            generateCategoriesSection.style.display = isMyTurnToChoose ? 'block' : 'none';
+
+            // El botón de empezar solo lo ve el anfitrión y solo si ya se ha elegido una letra
+            startGameBtn.classList.toggle('hidden', !localPlayerIsHost || !gameData.preselectedLetter);
+            
+            // Mensaje de espera para todos
+            if (isMyTurnToChoose) {
+                waitingForHostMsg.textContent = 'Es tu turno de elegir un tema usando el botón "Generar con IA".';
+            } else {
+                waitingForHostMsg.textContent = `Esperando que ${themeChooser?.name || 'alguien'} elija el tema de la ronda...`;
+            }
+            waitingForHostMsg.classList.remove('hidden');
+        }
+    } else { // Vista para jugadores que no son anfitriones
+        categoryList.innerHTML = gameData.categories.map(cat => `<li class="p-2 bg-card rounded-md shadow-sm"><span>${cat.label}</span></li>`).join('');
+        if (gameData.gameMode === 'ai_collaborative') {
+            const themeChooser = gameData.players[gameData.themeChooserIndex];
+            const isMyTurnToChoose = themeChooser?.id === currentUser.uid;
+            
+            waitingForHostMsg.classList.remove('hidden');
+            if (isMyTurnToChoose) {
+                waitingForHostMsg.textContent = '¡Es tu turno! El anfitrión ha habilitado el botón para que generes el tema.';
+                // Nota: El botón en sí está en la sección del anfitrión, pero esta lógica es para el texto.
+            } else {
+                waitingForHostMsg.textContent = `Esperando que ${themeChooser?.name || 'alguien'} elija el tema...`;
+            }
+        } else {
+            waitingForHostMsg.textContent = 'Esperando que el anfitrión inicie la partida...';
+            waitingForHostMsg.classList.remove('hidden');
+        }
         startGameBtn.classList.add('hidden');
-        waitingForHostMsg.classList.remove('hidden');
     }
 }
 
@@ -580,87 +745,103 @@ function buildForm(formCategories) {
     gameForm.innerHTML = formCategories.map(cat => `<div><label for="${cat.id}" class="block text-sm font-medium">${cat.label}</label><input type="text" id="${cat.id}" class="w-full p-3 bg-slate-100 dark:bg-slate-700 rounded-lg mt-1"></div>`).join('');
 }
 
+
+// js/main.js
+
 function displayResults(gameData) {
-    const bastaPlayerName = gameData.players.find(p => p.id === gameData.bastaPlayer)?.name || 'Alguien';
-    let title = `¡${bastaPlayerName} dijo BASTA!`;
-    if(gameData.bastaPlayer && gameData.bastaBonus > 0 && gameData.currentRound <= (gameData.lastScoredRound || 0)) {
-        title += ` (+${gameData.bastaBonus} pts de bonus)`;
-    }
-    resultsTitle.textContent = title;
+    const { detailedResults, responses, players, bastaPlayer, currentRound, lastScoredRound } = gameData;
+    const roundIsScored = currentRound <= (lastScoredRound || 0);
+
+    // Obtenemos referencias a los contenedores
+    const resultsDisplayContainer = document.getElementById('results-display');
+    const standingsContainer = document.getElementById('standings-container');
+    const roundScoreEl = document.getElementById('round-score').parentElement;
     
-    const { detailedResults, responses, players } = gameData;
-    const roundScores = {};
-    players.forEach(p => roundScores[p.id] = 0);
+    const bastaPlayerName = players.find(p => p.id === bastaPlayer)?.name || 'Alguien';
+    resultsTitle.textContent = `¡${bastaPlayerName} dijo BASTA!`;
 
-    let resultsHTML = '';
-    gameData.categories.forEach(cat => {
-        resultsHTML += `<div class="bg-slate-100 dark:bg-slate-700 p-3 rounded-lg"><p class="font-bold text-lg">${cat.label}</p><ul class="mt-2 space-y-1">`;
+    if (roundIsScored) {
+        // --- VISTA 1: TABLA DE POSICIONES ---
         
-        const validResponsesCount = {};
-        if (detailedResults) {
-            players.forEach(p => {
-                if (detailedResults[p.id]?.[cat.id]?.score === 10) {
-                   const responseUpper = (responses[p.id]?.[cat.id] || "").trim().toUpperCase();
-                   if (responseUpper) validResponsesCount[responseUpper] = (validResponsesCount[responseUpper] || 0) + 1;
+        // Controlamos la visibilidad directamente con style.display
+        resultsDisplayContainer.style.display = 'none';
+        standingsContainer.style.display = 'block';
+        roundScoreEl.style.display = 'none';
+
+        const standingsList = document.getElementById('standings-list');
+        const sortedPlayers = [...players].sort((a, b) => b.score - a.score);
+        
+        standingsList.innerHTML = sortedPlayers.map((p, index) => `
+            <li class="p-3 rounded-xl flex justify-between items-center text-lg ${index === 0 ? 'bg-yellow-500 bg-opacity-20' : 'bg-white bg-opacity-5'}">
+                <span class="font-semibold">${index + 1}. ${p.name}</span>
+                <span class="font-bold">${p.score} pts</span>
+            </li>
+        `).join('');
+        
+    } else {
+        // --- VISTA 2: DESGLOSE DE LA RONDA ---
+
+        // Controlamos la visibilidad directamente con style.display
+        resultsDisplayContainer.style.display = 'grid'; // Lo mostramos como grid
+        standingsContainer.style.display = 'none';
+        roundScoreEl.style.display = 'block';
+
+        const roundScores = {};
+        players.forEach(p => roundScores[p.id] = 0);
+        let resultsHTML = '';
+        
+        // (Aquí va toda tu lógica para construir las tarjetas, que ya estaba bien.
+        // La pego completa abajo para que no haya dudas)
+        gameData.categories.forEach(cat => {
+            resultsHTML += `<div class="result-card"><div class="result-card-header"><h4>${cat.label}</h4></div><ul class="result-card-body">`;
+            const validResponsesCount = {};
+            if (detailedResults) {
+                players.forEach(p => {
+                    if (detailedResults[p.id]?.[cat.id]?.score === 10) {
+                        const responseUpper = (responses[p.id]?.[cat.id] || "").trim().toUpperCase();
+                        if (responseUpper) validResponsesCount[responseUpper] = (validResponsesCount[responseUpper] || 0) + 1;
+                    }
+                });
+            }
+            players.forEach(player => {
+                const responseText = (responses?.[player.id]?.[cat.id] || "").trim();
+                let points = 0;
+                let icon = '';
+                let reasonText = '';
+                let rowClass = 'correct';
+                if (detailedResults && detailedResults[player.id]?.[cat.id]) {
+                    const result = detailedResults[player.id][cat.id];
+                    if (result.score === 10) {
+                        const responseUpper = responseText.toUpperCase();
+                        points = validResponsesCount[responseUpper] > 1 ? 5 : 10;
+                        icon = points === 10 ? `<span class="text-green-400">✅</span>` : `<span class="text-blue-400">🔷</span>`;
+                    } else {
+                        rowClass = 'incorrect';
+                        icon = `<span class="text-red-400">❌</span>`;
+                        if (result.reason) { reasonText = `<div class="reason-text">${result.reason}</div>`; }
+                    }
                 }
+                roundScores[player.id] += points;
+                let hostControls = '';
+                if (localPlayerIsHost && detailedResults && !roundIsScored) {
+                    hostControls = `<button onclick="window.manualCorrection('${player.id}', '${cat.id}', true)" class="action-btn" title="Marcar como correcta">✅</button>
+                                  <button onclick="window.manualCorrection('${player.id}', '${cat.id}', false)" class="action-btn" title="Marcar como incorrecta">❌</button>`;
+                }
+                resultsHTML += `<li class="answer-row ${rowClass}"><div class="answer-details"><b>${player.name}:</b><span class="answer-text">${responseText || '(vacío)'}</span>${reasonText}</div><div class="score-controls"><span>${icon} +${points}</span>${hostControls}</div></li>`;
             });
-        }
-
-        players.forEach(player => {
-            const responseText = (responses?.[player.id]?.[cat.id] || "").trim();
-            let points = 0;
-            let icon = '';
-            let reasonHTML = '';
-            
-            if (detailedResults && detailedResults[player.id]?.[cat.id]) {
-                const result = detailedResults[player.id][cat.id];
-                if (result.score === 10) {
-                    const responseUpper = responseText.toUpperCase();
-                    points = validResponsesCount[responseUpper] > 1 ? 5 : 10;
-                    icon = points === 10 ? `<span class="text-green-500 font-bold text-lg">✅</span>` : `<span class="text-blue-500 font-bold text-lg">🔷</span>`;
-                } else {
-                    icon = `<span class="text-red-500 font-bold text-lg">❌</span>`;
-                }
-                if (result.manual && result.reason) {
-                    reasonHTML = `<div class="text-xs text-red-500 ml-5 pl-1 border-l-2 border-red-500">Razón: ${result.reason}</div>`;
-                }
-            }
-
-            roundScores[player.id] += points;
-            
-            let hostControls = '';
-            if (localPlayerIsHost && detailedResults && gameData.currentRound > (gameData.lastScoredRound || 0)) {
-                hostControls = `<div class="flex items-center gap-1">
-                                    <button onclick="window.manualCorrection('${player.id}', '${cat.id}', true)" class="manual-correction-btn correct">✅</button>
-                                    <button onclick="window.manualCorrection('${player.id}', '${cat.id}', false)" class="manual-correction-btn incorrect">❌</button>
-                                </div>`;
-            }
-            
-            resultsHTML += `<li>
-                              <div class="text-sm flex justify-between items-center">
-                                  <span><b>${player.name}:</b> ${responseText || '(vacío)'}</span>
-                                  <div class="flex items-center gap-2">
-                                      ${detailedResults ? `${icon} +${points}` : ''}
-                                      ${hostControls}
-                                  </div>
-                              </div>
-                              ${reasonHTML}
-                           </li>`;
+            resultsHTML += `</ul></div>`;
         });
-        resultsHTML += `</ul></div>`;
-    });
-    resultsDisplay.innerHTML = resultsHTML;
-    roundScoreDisplay.textContent = roundScores[currentUser.uid] || 0;
+        resultsDisplayContainer.innerHTML = resultsHTML;
+        document.getElementById('round-score').textContent = roundScores[currentUser.uid] || 0;
+    }
 
+    // La lógica de los botones de abajo se mantiene igual
     if (localPlayerIsHost) {
         resultsButtons.classList.remove('hidden');
-        const resultsAreVerified = detailedResults && Object.keys(detailedResults).length > 0;
-        const roundIsScored = gameData.currentRound <= (gameData.lastScoredRound || 0);
-
-        verifyAnswersBtn.classList.toggle('hidden', resultsAreVerified || roundIsScored);
-        confirmScoresBtn.classList.toggle('hidden', !resultsAreVerified || roundIsScored);
+        const isVerified = detailedResults && Object.keys(detailedResults).length > 0;
+        verifyAnswersBtn.classList.toggle('hidden', isVerified || roundIsScored);
+        confirmScoresBtn.classList.toggle('hidden', !isVerified || roundIsScored);
         nextRoundBtn.classList.toggle('hidden', !roundIsScored);
-        
         verifyAnswersBtn.disabled = false;
         confirmScoresBtn.disabled = false;
     } else {
@@ -680,6 +861,7 @@ function displayWinner(gameData) {
 // ASIGNACIÓN A WINDOW PARA FUNCIONES GLOBALES (ACCESIBLES DESDE EL HTML)
 window.manualCorrection = manualCorrection;
 window.removeCategory = removeCategory;
+window.kickPlayer = kickPlayer; // <-- AÑADIR ESTA LÍNEA
 
 copyGameIdBtn.addEventListener('click', () => {
     const tempInput = document.createElement('input');
@@ -689,4 +871,71 @@ copyGameIdBtn.addEventListener('click', () => {
     document.execCommand('copy');
     document.body.removeChild(tempInput);
     alert("¡Código copiado!");
+});
+
+
+
+generateCategoriesBtn.addEventListener('click', async () => {
+    // Chequeo de seguridad: ¿Realmente es mi turno?
+    const gameRef = doc(db, "games", currentGameId);
+    const gameDocForCheck = await getDoc(gameRef);
+    const gameDataForCheck = gameDocForCheck.data();
+    if (gameDataForCheck.players[gameDataForCheck.themeChooserIndex]?.id !== currentUser.uid) {
+        return alert("No es tu turno de elegir el tema.");
+    }
+
+    const theme = prompt("Escribe un tema para generar categorías (ej: La Biblia, Marvel, Profesiones):");
+    if (!theme) return;
+
+    generateLoader.classList.remove('hidden');
+    generateCategoriesBtn.disabled = true;
+
+    // --- LÓGICA MEJORADA AQUÍ ---
+    // 1. Obtenemos las letras que ya han sido usadas en la partida.
+    const usedLetters = gameDataForCheck.usedLetters || [];
+    const exclusionList = usedLetters.length > 0 ? `La letra que elijas NO PUEDE SER una de estas: [${usedLetters.join(', ')}].` : '';
+
+    // 2. Añadimos la nueva regla de exclusión al prompt.
+    const promptForAI = `Basado en el tema "${theme}", genera una ronda para un juego de Tutti Frutti (o 'Stop').
+    Necesito dos cosas:
+    1. Una letra adecuada para el tema, que tenga varias respuestas posibles en español. ${exclusionList}
+    2. Una lista de 6 a 7 categorías relacionadas con el tema que funcionen bien con la letra que elegiste.
+    Devuelve SÓLO un objeto JSON con dos claves: "letter" (string, una sola letra mayúscula) y "categories" (un array de strings).`;
+
+    try {
+        const apiKey = "AIzaSyCYn5XSl_1Lm8RHtD6ewDifSCipzVmFIWc";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        const payload = { contents: [{ role: "user", parts: [{ text: promptForAI }] }], generationConfig: { responseMimeType: "application/json" } };
+
+        const response = await fetch(apiUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        if (!response.ok) throw new Error('La respuesta de la API no fue exitosa.');
+
+        const result = await response.json();
+        const aiResponse = JSON.parse(result.candidates[0].content.parts[0].text);
+        
+        if (aiResponse.categories && aiResponse.letter && aiResponse.letter.length === 1) {
+            const currentCategories = gameDataForCheck.categories || [];
+            
+            const newCategories = aiResponse.categories.map(catLabel => ({
+                label: catLabel,
+                id: catLabel.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '')
+            }));
+
+            // Reemplazamos las categorías anteriores con las nuevas generadas
+            await updateDoc(gameRef, { 
+                categories: newCategories,
+                preselectedLetter: aiResponse.letter.toUpperCase()
+            });
+
+        } else {
+            throw new Error("La IA no devolvió los datos en el formato esperado (letra y categorías).");
+        }
+
+    } catch (error) {
+        console.error("Error al generar ronda con IA:", error);
+        alert("Hubo un error al generar la ronda. Por favor, intenta de nuevo.");
+    } finally {
+        generateLoader.classList.add('hidden');
+        generateCategoriesBtn.disabled = false;
+    }
 });

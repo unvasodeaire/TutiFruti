@@ -16,6 +16,8 @@
     <div id="game-container" class="w-full max-w-4xl mx-auto bg-card rounded-2xl shadow-2xl p-6 sm:p-10 transition-all duration-500">
         
         <header class="text-center mb-8">
+            <button id="home-btn" title="Volver al Inicio" class="absolute top-0 left-0 text-2xl p-2 rounded-full hover:bg-card">
+                &#127968; </button>
             <h1 class="text-4xl sm:text-5xl font-bold text-accent">Tutti Frutti Online</h1>
             <p id="subtitle" class="text-text-secondary mt-2">Juega con tus amigos en tiempo real.</p>
         </header>
@@ -48,6 +50,19 @@
                              <label for="basta-bonus-input" class="block text-sm font-medium">Bonus por "¡Basta!"</label>
                             <input type="number" id="basta-bonus-input" value="10" class="w-full p-3 rounded-lg mt-1">
                         </div>
+                        <div class="mt-4">
+                            <label class="block text-sm font-medium">Modo de Juego</label>
+                            <div class="flex gap-4 mt-2 p-3 bg-slate-200 dark:bg-slate-800 rounded-lg">
+                                <div class="flex items-center">
+                                    <input type="radio" id="mode-classic" name="game-mode" value="classic" checked class="w-4 h-4">
+                                    <label for="mode-classic" class="ml-2">Clásico</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="radio" id="mode-ai" name="game-mode" value="ai_collaborative" class="w-4 h-4">
+                                    <label for="mode-ai" class="ml-2">Colaborativo con IA</label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="flex gap-4 pt-2">
                         <button id="back-to-start-btn" class="w-1/3 text-white font-bold py-3 px-4 rounded-lg">Atrás</button>
@@ -64,12 +79,13 @@
         <div id="lobby-screen" class="hidden fade-in">
             <h2 class="text-2xl font-bold text-center mb-4">Sala de Espera</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                
                 <div>
                     <div class="p-4 rounded-lg text-center mb-6">
                         <p class="text-sm">Puntaje para ganar: <strong id="lobby-target-score" class="text-accent"></strong> | Bonus "Basta": <strong id="lobby-basta-bonus" class="text-accent"></strong></p>
                         <div class="flex items-center justify-center gap-4 mt-2">
                             <strong id="game-id-display" class="text-2xl font-mono text-accent"></strong>
-                            <button id="copy-game-id" class="p-2 rounded-lg" aria-label="Copiar código del juego">
+                            <button id="copy-game-id" class="p-2 rounded-lg hover:bg-slate-700" aria-label="Copiar código del juego">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3z"/></svg>
                             </button>
                         </div>
@@ -85,14 +101,25 @@
                         </form>
                     </div>
                 </div>
+        
                 <div id="category-editor-container" class="hidden">
                     <h3 class="text-lg font-semibold mb-2">Categorías de la Partida</h3>
+                    <p id="next-letter-info" class="text-sm text-text-secondary mb-3 hidden">
+                        Letra sugerida por la IA: <strong id="lobby-next-letter" class="text-accent text-xl"></strong>
+                    </p>
                     <ul id="category-list" class="space-y-2 mb-4"></ul>
                     <form id="add-category-form" class="flex gap-2">
                         <input type="text" id="new-category-input" class="w-full p-2 rounded-lg" placeholder="Añadir nueva categoría">
                         <button type="submit" class="btn-green text-white px-4 rounded-lg">Añadir</button>
                     </form>
+                    <div class="mt-4">
+                        <button id="generate-categories-btn" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2">
+                            💡 Generar con IA
+                            <div id="generate-loader" class="loader hidden !w-4 !h-4"></div>
+                        </button>
+                    </div>
                 </div>
+        
             </div>
             <button id="start-game-btn" class="w-full mt-6 btn-green text-white font-bold py-3 px-8 rounded-lg shadow-lg hidden">¡Empezar Juego!</button>
             <p id="waiting-for-host-msg" class="text-center mt-6 hidden">Esperando que el anfitrión inicie la partida...</p>
@@ -116,8 +143,16 @@
         
         <div id="results-screen" class="hidden fade-in">
             <h2 id="results-title" class="text-2xl font-bold text-center mb-6"></h2>
+            
             <div id="results-display" class="space-y-2"></div>
+        
+            <div id="standings-container" class="hidden">
+                <h3 class="text-2xl font-bold text-center mb-4 text-accent">Tabla de Posiciones</h3>
+                <ul id="standings-list" class="space-y-2 max-w-md mx-auto"></ul>
+            </div>
+        
             <p class="text-right font-bold text-2xl mt-6">Puntaje de la Ronda: <span id="round-score" class="text-accent">0</span></p>
+            
             <div id="results-buttons" class="flex flex-col sm:flex-row gap-4 mt-6">
                  <button id="verify-answers-btn" class="w-full btn-blue text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2">✨ Verificar con IA <div id="verify-loader" class="loader hidden"></div></button>
                 <button id="confirm-scores-btn" class="w-full btn-green text-white font-bold py-3 px-6 rounded-lg hidden">Confirmar Puntos y Sumar</button>
@@ -142,6 +177,9 @@
         </div>
 
         <div id="ai-verifying-screen" class="hidden fade-in text-center flex flex-col justify-center items-center min-h-[400px]">
+            <p class="mb-4 text-lg">
+                <strong id="basta-player-name" class="text-accent"></strong> ha dicho ¡BASTA!
+            </p>
             <h2 class="text-3xl font-bold text-accent mb-4">Verificando con IA</h2>
             <p class="text-text-secondary mb-8">Por favor, espera mientras se evalúan las respuestas...</p>
             <div class="loader !w-16 !h-16 mx-auto"></div>
