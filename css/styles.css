@@ -1,33 +1,33 @@
-/* --- PALETA DE COLORES Y VARIABLES GLOBALES --- */
+/* --- NUEVA PALETA DE COLORES Y VARIABLES GLOBALES --- */
 :root {
-    --bg-primary: #121212; /* Un negro casi puro, muy elegante */
-    --bg-card: #1E1E1E;    /* Un gris muy oscuro para las tarjetas */
-    --bg-input: #2A2A2A;   /* Un gris intermedio para inputs */
-    --border-color: rgba(255, 255, 255, 0.1); /* Borde sutil */
+    /* Paleta Púrpura Vibrante */
+    --bg-primary-start: #4c1d95; /* Púrpura oscuro */
+    --bg-primary-end: #2b0b5a;   /* Púrpura muy oscuro */
+    --bg-card: #ffffff;         /* Tarjeta principal blanca */
+    --bg-input: #f3f4f6;        /* Gris muy claro para inputs */
+    --border-color: #e5e7eb;    /* Borde sutil para la tarjeta */
     
-    --text-primary: #EAEAEA;
-    --text-secondary: #8E8E8E;
+    /* Textos para el nuevo tema claro */
+    --text-primary: #111827;     /* Texto principal muy oscuro (casi negro) */
+    --text-secondary: #6b7280;   /* Texto secundario gris */
     
-    --accent-blue: #0A84FF;   /* Azul vibrante de iOS/HyperOS */
-    --accent-green: #30D158; /* Verde vibrante */
-    --accent-red: #FF453A;   /* Rojo vibrante */
+    /* Acentos de color */
+    --accent-purple: #7c3aed; /* Púrpura principal para botones */
+    --accent-purple-hover: #6d28d9;
+    --accent-green: #10b981;  /* Verde */
+    --accent-red: #ef4444;    /* Rojo */
 
     --font-sans: 'Poppins', sans-serif;
-    --border-radius-main: 24px; /* Bordes muy redondeados */
-    --border-radius-btn: 9999px; /* Botones tipo "píldora" */
+    --border-radius-main: 24px;
+    --border-radius-btn: 9999px;
 }
 
 /* --- ESTILOS GLOBALES Y DE FONDO --- */
 body { 
     font-family: var(--font-sans); 
-    background-color: var(--bg-primary);
+    background-color: var(--bg-primary-end);
+    background-image: linear-gradient(135deg, var(--bg-primary-start) 0%, var(--bg-primary-end) 100%);
     color: var(--text-primary);
-    transition: background-color 0.3s, color 0.3s;
-
-    /* Efecto de fondo sutil */
-    background-image: radial-gradient(circle at 10% 20%, rgba(10, 132, 255, 0.1), transparent 30%),
-                      radial-gradient(circle at 90% 80%, rgba(48, 209, 88, 0.1), transparent 30%);
-
     display: flex;
     align-items: center;
     justify-content: center;
@@ -38,21 +38,21 @@ body {
 /* --- CONTENEDOR PRINCIPAL --- */
 #game-container {
     background-color: var(--bg-card);
+    color: var(--text-primary);
     border-radius: var(--border-radius-main);
-    border: 1px solid var(--border-color);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
 }
 
 /* --- TIPOGRAFÍA --- */
-h1, h2, h3 { color: var(--text-primary); }
+h1, h2, h3, h4 { color: var(--text-primary); }
 #subtitle, label { color: var(--text-secondary); }
-#letter-display, .text-accent { color: var(--accent-blue) !important; }
+#letter-display, .text-accent { color: var(--accent-purple) !important; }
 
 /* --- BOTONES MODERNOS --- */
 button {
     border: none;
     border-radius: var(--border-radius-btn);
-    font-weight: 600; /* Un poco más grueso */
+    font-weight: 600;
     padding: 14px 28px;
     cursor: pointer;
     transition: all 0.2s ease-in-out;
@@ -70,30 +70,45 @@ button:disabled {
     transform: none;
     filter: none;
 }
-.btn-green { background-color: var(--accent-green); color: black; }
-.btn-blue { background-color: var(--accent-blue); color: white; }
-.btn-red { background-color: var(--accent-red); color: white; }
-#back-to-start-btn { background-color: var(--bg-input); color: var(--text-primary); }
+
+#go-to-create-btn, #confirm-action-btn, #start-game-btn, #play-again-btn, #confirm-scores-btn {
+    background-color: var(--accent-purple);
+    color: white;
+}
+#go-to-create-btn:hover, #confirm-action-btn:hover, #start-game-btn:hover, #play-again-btn:hover, #confirm-scores-btn:hover {
+    background-color: var(--accent-purple-hover);
+}
+
+#go-to-join-btn, #verify-answers-btn, #next-round-btn {
+    background-color: var(--bg-input);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+#go-to-join-btn:hover, #verify-answers-btn:hover, #next-round-btn:hover {
+    background-color: #e5e7eb;
+}
+
+#basta-btn { background-color: var(--accent-red); color: white; }
+#back-to-start-btn, #close-error-modal { background-color: #e5e7eb; color: var(--text-primary); }
 
 /* --- INPUTS Y FORMULARIOS --- */
 input[type="text"], input[type="number"] {
     background-color: var(--bg-input);
     border: 1px solid var(--border-color);
-    border-radius: 16px; /* Bordes más redondeados */
+    border-radius: 12px;
     padding: 14px;
     color: var(--text-primary);
     transition: all 0.2s ease-in-out;
 }
 input[type="text"]:focus, input[type="number"]:focus {
     outline: none;
-    border-color: var(--accent-blue);
-    box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.3);
+    border-color: var(--accent-purple);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.3);
 }
 
 /* --- LISTAS Y ELEMENTOS DE UI --- */
-/* Botones de acción circulares (expulsar/eliminar) */
 .action-btn {
-    background-color: var(--bg-input);
+    background-color: #f3f4f6;
     color: var(--text-secondary);
     border-radius: 50%;
     width: 32px;
@@ -103,123 +118,96 @@ input[type="text"]:focus, input[type="number"]:focus {
     justify-content: center;
     padding: 0;
 }
-.action-btn:hover {
-    color: var(--text-primary);
-    background-color: var(--accent-red);
-}
-/* Efecto de hover para listas */
-#player-list li, #category-list li {
-    transition: background-color 0.2s, transform 0.2s;
-    background-color: transparent;
-    border-radius: 12px;
-}
+.action-btn:hover { background-color: var(--accent-red); color: white; }
+
 #player-list li:hover, #category-list li:hover {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(0, 0, 0, 0.03);
     transform: scale(1.02);
 }
 
-/* Loader y Animaciones (sin cambios mayores) */
-.loader { border: 4px solid var(--bg-input); border-top: 4px solid var(--accent-blue); /* ... */ }
-@keyframes fadeIn { /* ... */ } @keyframes pulse { /* ... */ } @keyframes spin { /* ... */ }
-.fade-in { /* ... */ } .pulse { /* ... */ }
-.sortable-ghost { opacity: 0.4; background-color: var(--accent-blue); }
-.sortable-drag { opacity: 0.9 !important; transform: rotate(2deg); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3); }
-
-/* css/style.css */
-
-/* ... (todos tus estilos existentes) ... */
-
-/* --- REDISEÑO PANTALLA DE RESULTADOS (VERSIÓN COMPACTA) --- */
-
-/* Contenedor principal de las tarjetas */
+/* --- PANTALLA DE RESULTADOS --- */
 #results-display {
     display: grid;
-    /* ESTA LÍNEA ES LA CLAVE: Crea una cuadrícula adaptable */
-    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 1rem;
 }
-
-/* El estilo de cada tarjeta de categoría */
 .result-card {
-    background-color: rgba(45, 55, 72, 0.5);
-    border-radius: var(--border-radius-main);
-    border: 1px solid var(--border-color);
-    backdrop-filter: blur(10px);
-    overflow: hidden;
-    transition: all 0.3s ease;
-    /* Añadimos una altura mínima para que las tarjetas de una fila tengan la misma altura */
+    background-color: var(--bg-input);
+    border-radius: 16px;
     display: flex;
     flex-direction: column;
 }
-
-/* El encabezado de la tarjeta con el nombre de la categoría */
 .result-card-header {
-    padding: 0.75rem 1.25rem; /* Padding reducido */
-    background-color: rgba(255, 255, 255, 0.05);
+    padding: 0.75rem 1.25rem;
     border-bottom: 1px solid var(--border-color);
 }
+.result-card-header h4 { font-size: 1.1rem; font-weight: 600; }
+.result-card-body { padding: 0.5rem 1.25rem 1rem; list-style: none; flex-grow: 1; }
+.answer-row { display: flex; justify-content: space-between; align-items: center; padding: 0.6rem 0; border-bottom: 1px solid var(--border-color); }
+.answer-row:last-child { border-bottom: none; }
+.answer-row.incorrect .answer-text { color: var(--text-secondary); text-decoration: line-through; }
+.answer-row.incorrect .reason-text { color: var(--accent-red); }
+.answer-details { display: flex; flex-direction: column; }
+.answer-details b, .answer-details .answer-text, .score-controls span { color: var(--text-primary); }
+.answer-details .reason-text { font-size: 0.8rem; font-style: italic; opacity: 0.8; margin-top: 4px; }
+.score-controls { display: flex; align-items: center; gap: 1rem; font-size: 1.1rem; font-weight: 600; }
 
-.result-card-header h4 {
-    font-size: 1.1rem; /* Tamaño de fuente reducido */
+/* --- LEADERBOARD --- */
+#standings-container { padding: 1rem 0; }
+.leaderboard-podium { display: flex; justify-content: center; align-items: flex-end; gap: 0.5rem; height: 250px; margin-bottom: 2rem; }
+.podium-place { display: flex; flex-direction: column; align-items: center; text-align: center; width: 30%; }
+.podium-avatar-wrapper { position: relative; margin-bottom: 0.5rem; }
+.podium-avatar { width: 80px; height: 80px; border-radius: 50%; border: 4px solid var(--accent-purple); background-color: var(--bg-input); object-fit: cover; }
+.podium-place.place-1 .podium-avatar { width: 100px; height: 100px; border-color: #FFD700; }
+.crown-icon { position: absolute; top: -25px; left: 50%; transform: translateX(-50%) rotate(-15deg); width: 40px; height: 40px; color: #FFD700; }
+.podium-name { font-weight: 600; font-size: 1.1rem; color: var(--text-primary); }
+.podium-score { font-weight: 700; font-size: 1rem; color: var(--accent-purple); background-color: rgba(124, 58, 237, 0.1); padding: 0.25rem 0.75rem; border-radius: var(--border-radius-btn); }
+.podium-step { width: 100%; background-color: var(--bg-input); color: var(--text-secondary); font-size: 2.5rem; font-weight: 700; border-top-left-radius: 12px; border-top-right-radius: 12px; padding-top: 0.5rem; }
+.place-1 { order: 2; } .place-2 { order: 1; } .place-3 { order: 3; }
+.place-1 .podium-step { height: 120px; background-color: var(--accent-purple); color: white; }
+.place-2 .podium-step { height: 90px; } .place-3 .podium-step { height: 60px; }
+.leaderboard-list li { background-color: var(--bg-input); border-radius: 12px; padding: 0.75rem 1rem; display: flex; align-items: center; gap: 1rem; }
+.leaderboard-list .rank { font-size: 1rem; font-weight: 600; color: var(--text-secondary); width: 20px; }
+.list-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: var(--bg-card); }
+.list-name { flex-grow: 1; font-weight: 500; }
+.list-score { font-weight: 700; color: var(--accent-purple); }
+
+/* Animaciones y otros */
+.loader { border: 4px solid var(--bg-input); border-top: 4px solid var(--accent-purple); border-radius: 50%; width: 24px; height: 24px; animation: spin 1s linear infinite; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.fade-in { animation: fadeIn 0.5s ease-out forwards; }
+.pulse { animation: pulse 0.5s ease-in-out; }
+.sortable-ghost { opacity: 0.4; background-color: var(--accent-purple); }
+.sortable-drag { opacity: 0.9 !important; transform: rotate(2deg); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3); }
+
+/* --- AJUSTES FINALES PARA EL LEADERBOARD --- */
+
+/* 1. Arreglamos el título que se superpone y mejoramos su estilo */
+#standings-container > h3 {
+    font-size: 2.25rem; /* Hacemos el título más grande y audaz */
+    font-weight: 700;
+    margin-bottom: 4rem; /* Aumentamos mucho el margen para dar espacio a la corona */
+}
+
+/* 2. Aseguramos y mejoramos las esquinas redondeadas en el podio */
+.podium-step {
+    border-top-left-radius: 16px; /* Aumentamos el radio para que sea más notable */
+    border-top-right-radius: 16px;
+}
+
+/* 3. Mejoramos el color y estilo de la píldora de puntos */
+.podium-score {
+    background-color: var(--accent-purple); /* Usamos el color de acento sólido */
+    color: white; /* Texto blanco para contraste */
     font-weight: 600;
+    box-shadow: 0 4px 10px rgba(124, 58, 237, 0.4); /* Le damos un brillo suave */
 }
 
-/* La lista de respuestas de los jugadores */
-.result-card-body {
-    padding: 0.5rem 1.25rem 1rem; /* Padding reducido */
-    list-style: none;
-    flex-grow: 1; /* Permite que el cuerpo crezca para llenar el espacio */
-}
-
-.answer-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.6rem 0; /* Padding reducido */
-    border-bottom: 1px solid var(--border-color);
-}
-
-.answer-row:last-child {
-    border-bottom: none;
-}
-
-
-/* Feedback visual de color para respuestas correctas/incorrectas */
-.answer-row.correct {
-    /* No añadimos fondo para mantenerlo minimalista, el icono es suficiente */
-}
-.answer-row.incorrect .answer-text {
-    color: var(--text-secondary);
-    text-decoration: line-through; /* Tachamos la respuesta incorrecta */
-}
-.answer-row.incorrect .reason-text {
-    color: var(--accent-red);
-}
-
-/* Estilos para el texto de la respuesta y la razón */
-.answer-details {
-    display: flex;
-    flex-direction: column;
-}
-.answer-details b {
-    color: var(--text-primary);
-}
-.answer-details .answer-text {
-    color: var(--text-primary);
-    font-size: 1rem;
-}
-.answer-details .reason-text {
-    font-size: 0.8rem; /* 12.8px */
-    font-style: italic;
-    opacity: 0.8;
-    margin-top: 4px;
-}
-
-/* Contenedor para los puntos y botones de corrección */
-.score-controls {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+/* 4. Pequeño ajuste en el nombre para mejor legibilidad */
+.podium-name {
     font-size: 1.1rem;
-    font-weight: 600;
+    margin-top: 0.5rem;
+    font-weight: 700;
 }
