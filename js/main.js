@@ -68,6 +68,7 @@ import {
 
     // ... (después de las declaraciones de 'const')
 
+/* --- BLOQUE COMENTADO Y DESACTIVADO ---
 const homeBtn = document.getElementById('home-btn');
 homeBtn.addEventListener('click', () => {
     // Preguntamos al usuario si está seguro para no sacarlo de una partida por accidente
@@ -75,6 +76,7 @@ homeBtn.addEventListener('click', () => {
         window.location.reload();
     }
 }); 
+*/
 
     // --- LÓGICA PARA EFECTOS ---
     letterDisplay.addEventListener('animationend', () => {
