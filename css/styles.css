@@ -1,3 +1,7 @@
+/* ====================================================== */
+/* styles.css (VERSIÓN CORREGIDA)                */
+/* ====================================================== */
+
 /* Paleta de colores como variables para consistencia */
 :root {
     --bg-dark: #16141f;
@@ -6,47 +10,161 @@
     --text-light: #ffffff;
     --text-muted: #a49dbe;
     --border-color: #433d5c;
-    --danger-color: #e53e3e; /* Para el botón de STOP */
+    --danger-color: #ef4444; /* Rojo para el botón de STOP */
 }
 
-/* Clases de utilidad para botones y elementos comunes */
+/* Clases de utilidad para botones y elementos comunes (Sin @apply) */
+.btn-primary, .btn-secondary, .btn-stop {
+    display: flex;
+    min-width: 84px;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 9999px;
+    height: 3rem; /* 48px */
+    padding-left: 1.25rem; /* 20px */
+    padding-right: 1.25rem; /* 20px */
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0.015em;
+    width: 100%;
+    transition: transform 0.2s ease-in-out;
+}
+.btn-primary:hover, .btn-secondary:hover, .btn-stop:hover {
+    transform: scale(1.05);
+}
+.btn-primary:disabled, .btn-secondary:disabled, .btn-stop:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+.btn-primary:disabled:hover, .btn-secondary:disabled:hover, .btn-stop:disabled:hover {
+    transform: scale(1);
+}
+
 .btn-primary {
-    @apply flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-5 bg-[#c6bde9] text-[#16141f] text-base font-bold leading-normal tracking-[0.015em] w-full transition-transform duration-200 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100;
+    background-color: var(--primary-accent);
+    color: var(--bg-dark);
 }
 
 .btn-secondary {
-    @apply flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-5 bg-[#2f2b40] text-white text-base font-bold leading-normal tracking-[0.015em] w-full transition-transform duration-200 hover:scale-105 hover:bg-[#433d5c] disabled:opacity-50 disabled:hover:scale-100;
+    background-color: var(--bg-secondary);
+    color: var(--text-light);
+}
+.btn-secondary:hover {
+    background-color: var(--border-color);
 }
 
 .btn-stop {
-     @apply flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-5 bg-red-600 text-white text-base font-bold leading-normal tracking-[0.015em] w-full transition-transform duration-200 hover:scale-105 hover:bg-red-500 disabled:opacity-50 disabled:hover:scale-100;
+    background-color: var(--danger-color);
+    color: var(--text-light);
+}
+.btn-stop:hover {
+    background-color: #f87171; /* Un rojo más claro al pasar el mouse */
 }
 
+
 .btn-chip {
-    @apply flex h-8 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#2f2b40] pl-2 pr-4 cursor-pointer hover:bg-[#433d5c] text-white;
+    display: flex;
+    height: 2rem; /* 32px */
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem; /* 8px */
+    border-radius: 9999px;
+    background-color: var(--bg-secondary);
+    padding-left: 0.5rem; /* 8px */
+    padding-right: 1rem; /* 16px */
+    cursor: pointer;
+    color: var(--text-light);
+}
+.btn-chip:hover {
+    background-color: var(--border-color);
 }
 
 .input-field {
-    @apply form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-[#c6bde9] border-none bg-[#2f2b40] h-14 placeholder:text-[#a49dbe] p-4 text-base font-normal leading-normal;
+    display: flex;
+    width: 100%;
+    min-width: 0;
+    flex: 1 1 0%;
+    resize: none;
+    overflow: hidden;
+    border-radius: 0.75rem; /* 12px */
+    color: var(--text-light);
+    border: none;
+    background-color: var(--bg-secondary);
+    height: 3.5rem; /* 56px */
+    padding: 1rem; /* 16px */
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 400;
+}
+.input-field:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--primary-accent);
+}
+.input-field::placeholder {
+    color: var(--text-muted);
 }
 
+
 .section-title {
-    @apply text-white text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4;
+    color: var(--text-light);
+    font-size: 1.125rem; /* 18px */
+    line-height: 1.75rem; /* 28px */
+    font-weight: 700;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-bottom: 0.5rem;
+    padding-top: 1rem;
 }
 
 .info-row {
-    @apply col-span-2 grid grid-cols-subgrid border-t border-t-[#433d5c] py-3;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    border-top: 1px solid var(--border-color);
+    padding-top: 0.75rem; /* 12px */
+    padding-bottom: 0.75rem;
 }
 
 .text-muted {
     color: var(--text-muted);
 }
+.text-primary-accent {
+    color: var(--primary-accent);
+}
 
 .segmented-control {
-    @apply flex h-10 flex-1 items-center justify-center rounded-full bg-[#2f2b40] p-1;
+    display: flex;
+    height: 2.5rem; /* 40px */
+    flex: 1 1 0%;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background-color: var(--bg-secondary);
+    padding: 0.25rem;
 }
 .segmented-control-label {
-    @apply flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-full px-2 has-[:checked]:bg-[#16141f] has-[:checked]:shadow-[0_0_4px_rgba(0,0,0,0.1)] has-[:checked]:text-white text-[#a49dbe] text-sm font-medium leading-normal;
+    display: flex;
+    cursor: pointer;
+    height: 100%;
+    flex-grow: 1;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 9999px;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.875rem; /* 14px */
+    line-height: 1.25rem; /* 20px */
+    font-weight: 500;
+}
+.segmented-control-label:has(:checked) {
+    background-color: var(--bg-dark);
+    box-shadow: 0 0 4px rgba(0,0,0,0.1);
+    color: var(--text-light);
 }
 
 /* Loader para estados de carga */
