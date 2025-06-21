@@ -3,194 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tutti Frutti Multijugador con IA y Firebase</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <title>Stop Online Multijugador</title>
+
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+    <link rel="stylesheet" as="style" onload="this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900&amp;family=Spline+Sans%3Awght%40400%3B500%3B700" />
+    
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link rel="stylesheet" href="css/styles.css"> 
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 </head>
-<body>
+<body style='font-family: "Spline Sans", "Noto Sans", sans-serif;'>
 
-    <div id="game-container" class="w-full max-w-4xl mx-auto bg-card rounded-2xl shadow-2xl p-6 sm:p-10 transition-all duration-500">
+    <div class="relative flex size-full min-h-screen flex-col bg-[#16141f] dark justify-between group/design-root overflow-x-hidden">
         
-        <header class="text-center mb-8">
-            <button id="home-btn" title="Volver al Inicio" class="absolute top-0 left-0 text-2xl p-2 rounded-full hover:bg-card">
-                &#127968; </button>
-            <h1 class="text-4xl sm:text-5xl font-bold text-accent">Tutti Frutti Online</h1>
-            <p id="subtitle" class="text-text-secondary mt-2">Juega con tus amigos en tiempo real.</p>
-        </header>
+        <main class="w-full max-w-4xl mx-auto p-4 sm:p-6 md:p-8">
 
-        <div id="start-screen" class="fade-in text-center">
-            <div id="initial-actions">
-                <h2 class="text-xl font-semibold mb-6">¡Bienvenido!</h2>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <button id="go-to-create-btn" class="w-full sm:w-auto text-white py-3 px-8 rounded-lg shadow-lg" disabled>Crear Nueva Partida</button>
-                    <button id="go-to-join-btn" class="w-full sm:w-auto text-white py-3 px-8 rounded-lg shadow-lg" disabled>Unirse a Partida</button>
+            <div id="start-screen" class="text-center">
+                <header>
+                    <h1 class="text-white tracking-light text-[32px] font-bold leading-tight px-4 text-center pb-3 pt-6">Stop Online</h1>
+                    <p class="text-white text-base font-normal leading-normal pb-3 pt-1 px-4 text-center">The classic word game, reinvented.</p>
+                </header>
+                <div id="initial-actions" class="flex justify-center">
+                  <div class="flex flex-1 gap-3 max-w-[480px] flex-col items-stretch px-4 py-3">
+                    <button id="go-to-create-btn" class="btn-primary" disabled><span class="truncate">Create Game</span></button>
+                    <button id="go-to-join-btn" class="btn-secondary" disabled><span class="truncate">Join Game</span></button>
+                  </div>
                 </div>
+                <p id="auth-loader" class="mt-4 flex items-center justify-center gap-2 text-white"><span class="loader"></span> Autenticando...</p>
             </div>
-            <div id="details-entry-screen" class="hidden">
-                <h2 id="details-title" class="text-xl font-semibold mb-4"></h2>
-                <div class="space-y-4 max-w-sm mx-auto">
+
+            <div id="details-entry-screen" class="hidden w-full max-w-[480px] mx-auto">
+                <div class="flex items-center bg-[#16141f] p-4 pb-2 justify-between">
+                  <button id="back-to-start-btn" class="text-white flex size-12 shrink-0 items-center cursor-pointer">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>
+                  </button>
+                  <h2 id="details-title" class="text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">Crear Partida</h2>
+                </div>
+                <div class="space-y-4">
                     <div>
-                        <label for="player-name-input" class="block text-sm font-medium text-left">Tu Nombre</label>
-                        <input type="text" id="player-name-input" class="w-full p-3 rounded-lg mt-1" placeholder="Ej: Royer">
+                        <label class="block text-sm font-medium text-[#a49dbe] mb-2 px-4">Tu Nombre</label>
+                        <div class="px-4"><input id="player-name-input" placeholder="Escribe tu nombre" class="input-field" value="" /></div>
                     </div>
-                    <div id="game-code-input-container" class="hidden">
-                        <label for="game-code-input" class="block text-sm font-medium text-left">Código de la Partida</label>
-                        <input type="text" id="game-code-input" class="w-full p-3 rounded-lg mt-1" placeholder="JUEGO-XXXXX">
+                    <div id="game-code-input-container" class="hidden px-4">
+                         <label for="game-code-input" class="block text-sm font-medium text-[#a49dbe] mb-2">Código de la Partida</label>
+                         <input type="text" id="game-code-input" class="input-field" placeholder="JUEGO-XXXXX">
                     </div>
-                    <div id="create-options-container" class="hidden text-left">
+                    <div id="create-options-container" class="hidden space-y-4">
                         <div>
-                            <label for="target-score-input" class="block text-sm font-medium">Puntaje para Ganar</label>
-                            <input type="number" id="target-score-input" value="100" class="w-full p-3 rounded-lg mt-1">
+                          <label class="block text-sm font-medium text-[#a49dbe] mb-2 px-4">Puntaje para Ganar</label>
+                          <div class="px-4"><input id="target-score-input" type="number" value="100" class="input-field" /></div>
                         </div>
-                        <div class="mt-4">
-                             <label for="basta-bonus-input" class="block text-sm font-medium">Bonus por "¡Basta!"</label>
-                            <input type="number" id="basta-bonus-input" value="10" class="w-full p-3 rounded-lg mt-1">
+                        <div>
+                          <label class="block text-sm font-medium text-[#a49dbe] mb-2 px-4">Bonus por ¡STOP!</label>
+                          <div class="px-4"><input id="basta-bonus-input" type="number" value="10" class="input-field" /></div>
                         </div>
-                        <div class="mt-4">
-                            <label class="block text-sm font-medium">Modo de Juego</label>
-                            <div class="flex gap-4 mt-2 p-3 bg-slate-200 dark:bg-slate-800 rounded-lg">
-                                <div class="flex items-center">
-                                    <input type="radio" id="mode-classic" name="game-mode" value="classic" checked class="w-4 h-4">
-                                    <label for="mode-classic" class="ml-2">Clásico</label>
-                                </div>
-                                <div class="flex items-center">
-                                    <input type="radio" id="mode-ai" name="game-mode" value="ai_collaborative" class="w-4 h-4">
-                                    <label for="mode-ai" class="ml-2">Colaborativo con IA</label>
-                                </div>
+                        <div>
+                            <p class="text-[#a49dbe] text-sm font-normal leading-normal pb-3 pt-1 px-4">Modo de Juego</p>
+                            <div class="flex px-4 py-3">
+                              <div class="segmented-control">
+                                <label class="segmented-control-label">
+                                  <span class="truncate">Clásico</span>
+                                  <input type="radio" name="game-mode" class="invisible w-0" value="classic" checked="" />
+                                </label>
+                                <label class="segmented-control-label">
+                                  <span class="truncate">Temático con IA</span>
+                                  <input type="radio" name="game-mode" class="invisible w-0" value="ai_collaborative" />
+                                </label>
+                              </div>
                             </div>
                         </div>
                     </div>
-                    <div class="flex gap-4 pt-2">
-                        <button id="back-to-start-btn" class="w-1/3 text-white font-bold py-3 px-4 rounded-lg">Atrás</button>
-                        <button id="confirm-action-btn" data-action="create" class="w-2/3 btn-green text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center">
-                            <span id="confirm-action-text"></span>
-                            <div id="action-loader" class="loader !w-5 !h-5 hidden ml-2"></div>
+                    <div class="px-4 py-6">
+                        <button id="confirm-action-btn" class="btn-primary w-full">
+                          <span id="confirm-action-text" class="truncate">Crear y Entrar</span>
+                          <div id="action-loader" class="loader !w-5 !h-5 hidden ml-2"></div>
                         </button>
                     </div>
                 </div>
             </div>
-            <p id="auth-loader" class="mt-4 flex items-center justify-center gap-2"><span class="loader !w-5 !h-5"></span> Autenticando...</p>
-        </div>
 
-        <div id="lobby-screen" class="hidden fade-in">
-            <h2 class="text-2xl font-bold text-center mb-4">Sala de Espera</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                
-                <div>
-                    <div class="p-4 rounded-lg text-center mb-6">
-                        <p class="text-sm">Puntaje para ganar: <strong id="lobby-target-score" class="text-accent"></strong> | Bonus "Basta": <strong id="lobby-basta-bonus" class="text-accent"></strong></p>
-                        <div class="flex items-center justify-center gap-4 mt-2">
-                            <strong id="game-id-display" class="text-2xl font-mono text-accent"></strong>
-                            <button id="copy-game-id" class="p-2 rounded-lg hover:bg-slate-700" aria-label="Copiar código del juego">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3z"/></svg>
-                            </button>
+            <div id="lobby-screen" class="hidden w-full max-w-4xl mx-auto">
+                <div class="flex items-center p-4 pb-2 justify-between">
+                  <h2 class="text-white text-lg font-bold leading-tight flex-1 text-center">Lobby</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 p-4">
+                    <div>
+                        <h3 class="section-title">Detalles de la Partida</h3>
+                        <div class="flex gap-3 py-3 flex-wrap pr-4">
+                          <button id="copy-game-id" class="btn-chip">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256"><path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z"></path></svg>
+                            <p id="game-id-display" class="text-white text-sm font-medium">CARGANDO...</p>
+                          </button>
+                        </div>
+                        <div class="grid grid-cols-[auto_1fr] gap-x-6">
+                          <div class="info-row"><p class="text-muted">Puntuación para Ganar</p><p id="lobby-target-score" class="text-white font-bold text-right">100</p></div>
+                          <div class="info-row"><p class="text-muted">Bonus de Stop</p><p id="lobby-basta-bonus" class="text-white font-bold text-right">50</p></div>
+                        </div>
+                        <h3 class="section-title pt-4">Jugadores Conectados</h3>
+                        <ul id="player-list" class="space-y-2"></ul>
+                    </div>
+                    <div>
+                        <div id="category-editor-container" class="hidden">
+                            <h3 class="section-title">Categorías</h3>
+                            <ul id="category-list" class="space-y-1"></ul>
+                            <form id="add-category-form" class="flex gap-2 py-3">
+                                <input id="new-category-input" placeholder="Añadir nueva categoría" class="input-field flex-1"/>
+                                <button type="submit" class="btn-primary h-14 !w-14 !px-0 flex-shrink-0 text-2xl">+</button>
+                            </form>
+                            <div class="mt-2">
+                                <button id="generate-categories-btn" class="btn-secondary w-full gap-2">
+                                    💡 Generar con IA <div id="generate-loader" class="loader !w-4 !h-4 hidden"></div>
+                                </button>
+                            </div>
+                        </div>
+                        <div id="lobby-chat-container">
+                            <h3 class="section-title">Chat</h3>
+                            <div id="chat-messages" class="h-40 overflow-y-auto p-3 rounded-lg bg-[#2f2b40] mb-2 text-sm space-y-2"></div>
+                            <form id="chat-form" class="flex gap-2">
+                                <input type="text" id="chat-input" class="input-field flex-1" placeholder="Escribe un mensaje..." autocomplete="off">
+                                <button type="submit" class="btn-primary text-sm h-12">Enviar</button>
+                            </form>
                         </div>
                     </div>
-                    <h3 class="text-lg font-semibold mb-2">Jugadores Conectados:</h3>
-                    <ul id="player-list" class="space-y-2 mb-6 min-h-[80px] p-3 rounded-lg"></ul>
-                    <div id="lobby-chat-container">
-                        <h3 class="text-lg font-semibold mb-2">Chat</h3>
-                        <div id="chat-messages" class="h-40 overflow-y-auto p-3 rounded-lg mb-2 text-sm"></div>
-                        <form id="chat-form" class="flex gap-2">
-                            <input type="text" id="chat-input" class="w-full p-2 rounded-lg" placeholder="Escribe un mensaje..." autocomplete="off">
-                            <button type="submit" class="btn-blue text-white px-4 rounded-lg">Enviar</button>
-                        </form>
-                    </div>
                 </div>
-        
-                <div id="category-editor-container" class="hidden">
-                    <h3 class="text-lg font-semibold mb-2">Categorías de la Partida</h3>
-                    <p id="next-letter-info" class="text-sm text-text-secondary mb-3 hidden">
-                        Letra sugerida por la IA: <strong id="lobby-next-letter" class="text-accent text-xl"></strong>
-                    </p>
-                    <ul id="category-list" class="space-y-2 mb-4"></ul>
-                    <form id="add-category-form" class="flex gap-2">
-                        <input type="text" id="new-category-input" class="w-full p-2 rounded-lg" placeholder="Añadir nueva categoría">
-                        <button type="submit" class="btn-green text-white px-4 rounded-lg">Añadir</button>
-                    </form>
-                    <div class="mt-4">
-                        <button id="generate-categories-btn" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded-lg flex items-center justify-center gap-2">
-                            💡 Generar con IA
-                            <div id="generate-loader" class="loader hidden !w-4 !h-4"></div>
-                        </button>
-                    </div>
+                <div class="p-4">
+                    <button id="start-game-btn" class="hidden btn-primary w-full">¡Empezar Juego!</button>
+                    <p id="waiting-for-host-msg" class="text-center text-muted hidden">Esperando que el anfitrión inicie la partida...</p>
                 </div>
-        
             </div>
-            <button id="start-game-btn" class="w-full mt-6 btn-green text-white font-bold py-3 px-8 rounded-lg shadow-lg hidden">¡Empezar Juego!</button>
-            <p id="waiting-for-host-msg" class="text-center mt-6 hidden">Esperando que el anfitrión inicie la partida...</p>
-        </div>
 
-        <main id="main-game-screen" class="hidden fade-in">
-            <div class="flex flex-col sm:flex-row justify-between items-center mb-6 p-4 rounded-xl">
-                <div><h2 id="round-title" class="text-2xl font-bold"></h2></div>
-                <div class="text-center sm:text-left">
-                    <span class="text-sm font-semibold">LETRA</span>
-                    <p id="letter-display" class="text-6xl sm:text-7xl font-bold"></p>
+            <div id="main-game-screen" class="hidden w-full max-w-[480px] mx-auto">
+                <div class="flex items-center p-4 pb-2 justify-between">
+                  <h2 id="round-title" class="text-white text-lg font-bold">Ronda 1</h2>
+                  <div class="flex items-baseline gap-2"><p class="text-muted text-sm font-bold">Puntaje</p><p id="total-score" class="text-white text-lg font-bold">0</p></div>
                 </div>
-                <div class="text-center sm:text-right">
-                    <span class="text-sm font-semibold">PUNTAJE TOTAL</span>
-                    <p id="total-score" class="text-4xl sm:text-5xl font-bold">0</p>
+                <h1 id="letter-display" class="text-white text-8xl font-bold text-center py-6">A</h1>
+                <form id="game-form" class="space-y-3">
+                    </form>
+                <div class="pt-6">
+                  <button id="basta-btn" class="btn-stop w-full">¡STOP!</button>
                 </div>
             </div>
-            <form id="game-form" class="space-y-4"></form>
-            <button id="basta-btn" class="mt-8 w-full text-white font-bold py-3 px-6 rounded-lg shadow-lg">¡BASTA!</button>
+
+            <div id="results-screen" class="hidden">
+                 <h2 id="results-title" class="section-title text-center">¡Alguien dijo STOP!</h2>
+                 <div id="results-display" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-4">
+                     </div>
+                 <div id="standings-container" class="hidden">
+                    </div>
+                 <p class="text-center font-bold text-2xl mt-6">Puntaje de la Ronda: <span id="round-score" class="text-[#c6bde9]">0</span></p>
+                 <div id="results-buttons" class="flex flex-col sm:flex-row gap-4 mt-6">
+                     <button id="verify-answers-btn" class="btn-secondary flex-1 gap-2">✨ Verificar con IA <div id="verify-loader" class="loader hidden"></div></button>
+                    <button id="confirm-scores-btn" class="btn-primary flex-1 hidden">Confirmar Puntos</button>
+                    <button id="next-round-btn" class="btn-primary flex-1 hidden">Siguiente Ronda</button>
+                </div>
+            </div>
+
+            <div id="winner-screen" class="hidden text-center py-10">
+                <h2 class="text-3xl font-bold text-[#c6bde9] mb-4">¡Tenemos un ganador!</h2>
+                <p class="text-5xl font-extrabold text-white mb-6" id="winner-name"></p>
+                <h3 class="section-title mb-2">Puntajes Finales:</h3>
+                <ul id="final-scores-list" class="space-y-2 mb-8 max-w-md mx-auto">
+                    </ul>
+                <button id="play-again-btn" class="btn-primary w-full max-w-sm mx-auto">Jugar de Nuevo</button>
+            </div>
+            
+            <div id="ai-verifying-screen" class="hidden text-center flex flex-col justify-center items-center min-h-[400px]">
+                <p class="mb-4 text-lg">
+                    <strong id="basta-player-name" class="text-[#c6bde9]"></strong> ha dicho ¡STOP!
+                </p>
+                <h2 class="text-3xl font-bold text-white mb-4">Verificando con IA</h2>
+                <p class="text-muted mb-8">Por favor, espera mientras se evalúan las respuestas...</p>
+                <div class="loader !w-16 !h-16 mx-auto"></div>
+            </div>
+
         </main>
         
-        <div id="results-screen" class="hidden fade-in">
-            <h2 id="results-title" class="text-2xl font-bold text-center mb-6"></h2>
-            
-            <div id="results-display" class="space-y-2"></div>
-        
-            <div id="standings-container" class="hidden">
-                <h3 class="text-2xl font-bold text-center mb-4 text-accent">Tabla de Posiciones</h3>
-                <ul id="standings-list" class="space-y-2 max-w-md mx-auto"></ul>
-            </div>
-        
-            <p class="text-right font-bold text-2xl mt-6">Puntaje de la Ronda: <span id="round-score" class="text-accent">0</span></p>
-            
-            <div id="results-buttons" class="flex flex-col sm:flex-row gap-4 mt-6">
-                 <button id="verify-answers-btn" class="w-full btn-blue text-white font-bold py-3 px-6 rounded-lg flex items-center justify-center gap-2">✨ Verificar con IA <div id="verify-loader" class="loader hidden"></div></button>
-                <button id="confirm-scores-btn" class="w-full btn-green text-white font-bold py-3 px-6 rounded-lg hidden">Confirmar Puntos y Sumar</button>
-                <button id="next-round-btn" class="w-full text-white font-bold py-3 px-6 rounded-lg hidden">Siguiente Ronda</button>
-            </div>
-        </div>
-        
-        <div id="winner-screen" class="hidden fade-in text-center">
-            <h2 class="text-3xl font-bold text-yellow-500 mb-4">¡Tenemos un ganador!</h2>
-            <p class="text-5xl font-extrabold text-accent mb-6" id="winner-name"></p>
-            <h3 class="text-xl font-semibold mb-2">Puntajes Finales:</h3>
-            <ul id="final-scores-list" class="space-y-2 mb-8 max-w-md mx-auto"></ul>
-            <button id="play-again-btn" class="w-full btn-green text-white font-bold py-3 px-8 rounded-lg shadow-lg">Jugar de Nuevo</button>
-        </div>
-        
-        <div id="error-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-             <div class="bg-card rounded-lg shadow-xl p-6 max-w-md w-full">
-                <h3 class="text-xl font-bold text-danger mb-4 text-center">Error</h3>
-                <div id="error-message" class="mb-6 text-left whitespace-pre-wrap p-4 rounded-md"></div>
-                <button id="close-error-modal" class="w-full">Cerrar</button>
-            </div>
-        </div>
+        <footer class="flex flex-col gap-6 px-5 py-10 text-center @container">
+            </footer>
 
-        <div id="ai-verifying-screen" class="hidden fade-in text-center flex flex-col justify-center items-center min-h-[400px]">
-            <p class="mb-4 text-lg">
-                <strong id="basta-player-name" class="text-accent"></strong> ha dicho ¡BASTA!
-            </p>
-            <h2 class="text-3xl font-bold text-accent mb-4">Verificando con IA</h2>
-            <p class="text-text-secondary mb-8">Por favor, espera mientras se evalúan las respuestas...</p>
-            <div class="loader !w-16 !h-16 mx-auto"></div>
-        </div>
-        
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js" type="module"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js" type="module"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js" type="module"></script>
-    
     <script src="js/firebase.js" type="module"></script>
     <script src="js/main.js" type="module"></script>
 </body>
