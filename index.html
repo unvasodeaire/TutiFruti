@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stop Online Multijugador</title>
+    <title>TUTIFRUTI ONLINE Multijugador</title>
 
     <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
     <link rel="stylesheet" as="style" onload="this.rel='stylesheet'" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900&amp;family=Spline+Sans%3Awght%40400%3B500%3B700" />
@@ -20,7 +20,7 @@
 
             <div id="start-screen" class="text-center">
                 <header>
-                    <h1 class="text-white tracking-light text-4xl sm:text-5xl font-bold leading-tight px-4 text-center pb-3 pt-6">Stop Online</h1>
+                    <h1 class="text-white tracking-light text-4xl sm:text-5xl font-bold leading-tight px-4 text-center pb-3 pt-6">TUTIFRUTI ONLINE</h1>
                     <p class="text-white text-base font-normal leading-normal pb-3 pt-1 px-4 text-center">El clásico juego de palabras, reinventado.</p>
                 </header>
                 <div id="initial-actions" class="flex justify-center mt-4">
@@ -54,7 +54,7 @@
                           <div class="px-4"><input id="target-score-input" type="number" value="100" class="input-field" /></div>
                         </div>
                         <div>
-                          <label class="block text-sm font-medium text-muted mb-2 px-4">Bonus por ¡STOP!</label>
+                          <label class="block text-sm font-medium text-muted mb-2 px-4">Bonus por ¡BASTA!</label>
                           <div class="px-4"><input id="basta-bonus-input" type="number" value="10" class="input-field" /></div>
                         </div>
                         <div>
@@ -86,11 +86,11 @@
                 <div class="flex items-center p-4 pb-2 justify-between">
                   <h2 class="text-white text-xl font-bold leading-tight flex-1 text-center">Sala de Espera</h2>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 p-4">
-                    <div class="space-y-4">
-                        <div>
-                            <h3 class="section-title">Detalles de la Partida</h3>
-                            <div class="flex gap-3 py-3 flex-wrap pr-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4">
+                    <div class="space-y-6">
+                        <div class="bg-secondary rounded-xl p-4">
+                            <h3 class="section-title !p-0 !pb-2">Detalles de la Partida</h3>
+                            <div class="flex gap-3 py-3 flex-wrap">
                               <button id="copy-game-id" class="btn-chip">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256"><path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z"></path></svg>
                                 <p id="game-id-display" class="text-white text-sm font-medium">CARGANDO...</p>
@@ -98,21 +98,21 @@
                             </div>
                             <div class="grid grid-cols-[auto_1fr] gap-x-6 text-sm">
                               <div class="info-row"><p class="text-muted">Puntuación para Ganar</p><p id="lobby-target-score" class="text-white font-bold text-right">100</p></div>
-                              <div class="info-row"><p class="text-muted">Bonus por ¡STOP!</p><p id="lobby-basta-bonus" class="text-white font-bold text-right">10</p></div>
+                              <div class="info-row"><p class="text-muted">Bonus por ¡BASTA!</p><p id="lobby-basta-bonus" class="text-white font-bold text-right">10</p></div>
                             </div>
                         </div>
-                        <div>
-                            <h3 class="section-title pt-4">Jugadores Conectados</h3>
+                        <div class="bg-secondary rounded-xl p-4">
+                            <h3 class="section-title !p-0 !pb-2">Jugadores Conectados</h3>
                             <ul id="player-list" class="space-y-2"></ul>
                         </div>
                     </div>
-                    <div class="space-y-4 mt-8 md:mt-0">
-                        <div id="category-editor-container" class="hidden">
-                            <h3 class="section-title">Categorías</h3>
+                    <div class="space-y-6">
+                        <div id="category-editor-container" class="hidden bg-secondary rounded-xl p-4">
+                            <h3 class="section-title !p-0 !pb-2">Categorías</h3>
                             <ul id="category-list" class="space-y-1"></ul>
                             <form id="add-category-form" class="flex gap-2 py-3">
                                 <input id="new-category-input" placeholder="Añadir nueva categoría" class="input-field flex-1"/>
-                                <button type="submit" class="btn-primary h-14 !w-14 !px-0 flex-shrink-0 text-2xl">+</button>
+                                <button type="submit" class="btn-primary !h-14 !w-14 !px-0 flex-shrink-0 text-2xl">+</button>
                             </form>
                             <div class="mt-2">
                                 <button id="generate-categories-btn" class="btn-secondary w-full gap-2">
@@ -120,9 +120,9 @@
                                 </button>
                             </div>
                         </div>
-                        <div id="lobby-chat-container">
-                            <h3 class="section-title">Chat</h3>
-                            <div id="chat-messages" class="h-40 overflow-y-auto p-3 rounded-lg bg-[#2f2b40] mb-2 text-sm space-y-2"></div>
+                        <div id="lobby-chat-container" class="bg-secondary rounded-xl p-4">
+                            <h3 class="section-title !p-0 !pb-2">Chat</h3>
+                            <div id="chat-messages" class="h-40 overflow-y-auto p-3 rounded-lg bg-dark mb-2 text-sm space-y-2"></div>
                             <form id="chat-form" class="flex gap-2">
                                 <input type="text" id="chat-input" class="input-field flex-1 !h-12" placeholder="Escribe un mensaje..." autocomplete="off">
                                 <button type="submit" class="btn-primary text-sm !h-12">Enviar</button>
@@ -141,16 +141,16 @@
                   <h2 id="round-title" class="text-white text-lg font-bold">Ronda 1</h2>
                   <div class="flex items-baseline gap-2"><p class="text-muted text-sm font-bold">Puntaje</p><p id="total-score" class="text-white text-lg font-bold">0</p></div>
                 </div>
-                <h1 id="letter-display" class="text-white text-8xl md:text-9xl font-bold text-center py-6">A</h1>
+                <h1 id="letter-display" class="text-white text-8xl md:text-9xl font-bold text-center py-6 text-primary-accent">A</h1>
                 <form id="game-form" class="space-y-3">
                     </form>
                 <div class="pt-6">
-                  <button id="basta-btn" class="btn-stop w-full">¡STOP!</button>
+                  <button id="basta-btn" class="btn-stop w-full">¡BASTA!</button>
                 </div>
             </div>
 
             <div id="results-screen" class="hidden">
-                 <h2 id="results-title" class="section-title text-center text-2xl">¡Alguien dijo STOP!</h2>
+                 <h2 id="results-title" class="section-title text-center text-2xl">¡Alguien dijo BASTA!</h2>
                  <div id="results-display" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-4">
                      </div>
                  <div id="standings-container" class="hidden">
@@ -164,7 +164,7 @@
             </div>
 
             <div id="winner-screen" class="hidden text-center py-10">
-                <h2 class="text-3xl font-bold text-primary-accent mb-4">¡Tenemos un Ganador!</h2>
+                <h2 class="text-3xl font-bold text-primary-accent mb-4">¡Tenemos un ganador!</h2>
                 <p class="text-5xl font-extrabold text-white mb-6" id="winner-name"></p>
                 <h3 class="section-title mb-2">Puntajes Finales:</h3>
                 <ul id="final-scores-list" class="space-y-2 mb-8 max-w-md mx-auto">
@@ -174,7 +174,7 @@
             
             <div id="ai-verifying-screen" class="hidden text-center flex flex-col justify-center items-center min-h-[400px]">
                 <p class="mb-4 text-lg">
-                    <strong id="basta-player-name" class="text-primary-accent"></strong> ha dicho ¡STOP!
+                    <strong id="basta-player-name" class="text-primary-accent"></strong> ha dicho ¡BASTA!
                 </p>
                 <h2 class="text-3xl font-bold text-white mb-4">Verificando con IA</h2>
                 <p class="text-muted mb-8">Por favor, espera mientras se evalúan las respuestas...</p>
@@ -182,9 +182,9 @@
             </div>
 
             <div id="error-modal" class="hidden fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-                <div class="bg-[#2f2b40] w-full max-w-md rounded-2xl shadow-lg p-6 text-center text-white">
-                    <h3 class="text-xl font-bold text-[#ef4444] mb-4">Error</h3>
-                    <div id="error-message" class="mb-6 text-left whitespace-pre-wrap p-4 rounded-md bg-[#16141f]"></div>
+                <div class="bg-secondary w-full max-w-md rounded-2xl shadow-lg p-6 text-center text-white">
+                    <h3 class="text-xl font-bold text-danger-color mb-4">Error</h3>
+                    <div id="error-message" class="mb-6 text-left whitespace-pre-wrap p-4 rounded-md bg-dark"></div>
                     <button id="close-error-modal" class="btn-secondary !w-auto !px-10 mx-auto">Cerrar</button>
                 </div>
             </div>
@@ -192,7 +192,7 @@
         </main>
         
         <footer class="flex flex-col gap-6 px-5 py-10 text-center @container">
-            <p class="text-muted text-sm font-normal leading-normal">@ 2025 Stop Online</p>
+            <p class="text-muted text-sm font-normal leading-normal">@ 2025 TUTIFRUTI ONLINE</p>
         </footer>
     </div>
 
