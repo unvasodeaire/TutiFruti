@@ -643,7 +643,9 @@ playAgainBtn.addEventListener('click', async () => {
 // --- ACTUALIZACIÓN DE LA UI ---
 function showScreen(screenIdToShow) {
     // Añadimos 'ai-verifying-screen' a la lista de pantallas a ocultar
-    ['start-screen', 'lobby-screen', 'main-game-screen', 'results-screen', 'winner-screen', 'ai-verifying-screen'].forEach(id => {
+    // LÍNEA CORREGIDA
+// LÍNEA CORREGIDA
+['start-screen', 'details-entry-screen', 'lobby-screen', 'main-game-screen', 'results-screen', 'winner-screen', 'ai-verifying-screen'].forEach(id => {
         const screen = document.getElementById(id);
         if (screen) screen.classList.add('hidden');
     });
