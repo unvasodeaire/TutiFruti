@@ -16,50 +16,50 @@
 
     <div class="relative flex size-full min-h-screen flex-col bg-[#16141f] dark justify-between group/design-root overflow-x-hidden">
         
-        <main class="w-full max-w-4xl mx-auto p-4 sm:p-6 md:p-8">
+        <main class="w-full max-w-4xl mx-auto p-4 sm:p-6 md:p-8 flex-grow">
 
             <div id="start-screen" class="text-center">
                 <header>
-                    <h1 class="text-white tracking-light text-[32px] font-bold leading-tight px-4 text-center pb-3 pt-6">Stop Online</h1>
-                    <p class="text-white text-base font-normal leading-normal pb-3 pt-1 px-4 text-center">The classic word game, reinvented.</p>
+                    <h1 class="text-white tracking-light text-4xl sm:text-5xl font-bold leading-tight px-4 text-center pb-3 pt-6">Stop Online</h1>
+                    <p class="text-white text-base font-normal leading-normal pb-3 pt-1 px-4 text-center">El clásico juego de palabras, reinventado.</p>
                 </header>
-                <div id="initial-actions" class="flex justify-center">
-                  <div class="flex flex-1 gap-3 max-w-[480px] flex-col items-stretch px-4 py-3">
-                    <button id="go-to-create-btn" class="btn-primary" disabled><span class="truncate">Create Game</span></button>
-                    <button id="go-to-join-btn" class="btn-secondary" disabled><span class="truncate">Join Game</span></button>
+                <div id="initial-actions" class="flex justify-center mt-4">
+                  <div class="flex w-full max-w-xs flex-col items-stretch gap-3 px-4 py-3">
+                    <button id="go-to-create-btn" class="btn-primary" disabled><span class="truncate">Crear Partida</span></button>
+                    <button id="go-to-join-btn" class="btn-secondary" disabled><span class="truncate">Unirse a Partida</span></button>
                   </div>
                 </div>
                 <p id="auth-loader" class="mt-4 flex items-center justify-center gap-2 text-white"><span class="loader"></span> Autenticando...</p>
             </div>
 
-            <div id="details-entry-screen" class="hidden w-full max-w-[480px] mx-auto">
-                <div class="flex items-center bg-[#16141f] p-4 pb-2 justify-between">
-                  <button id="back-to-start-btn" class="text-white flex size-12 shrink-0 items-center cursor-pointer">
+            <div id="details-entry-screen" class="hidden w-full max-w-md mx-auto">
+                <div class="flex items-center bg-[#16141f] p-4 pb-2">
+                  <button id="back-to-start-btn" class="text-white flex size-12 shrink-0 items-center cursor-pointer -ml-4">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256"><path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z"></path></svg>
                   </button>
-                  <h2 id="details-title" class="text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-12">Crear Partida</h2>
+                  <h2 id="details-title" class="text-white text-lg font-bold leading-tight tracking-[-0.015em] flex-1 text-center pr-8">Crear Partida</h2>
                 </div>
                 <div class="space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-[#a49dbe] mb-2 px-4">Tu Nombre</label>
+                        <label class="block text-sm font-medium text-muted mb-2 px-4">Tu Nombre</label>
                         <div class="px-4"><input id="player-name-input" placeholder="Escribe tu nombre" class="input-field" value="" /></div>
                     </div>
                     <div id="game-code-input-container" class="hidden px-4">
-                         <label for="game-code-input" class="block text-sm font-medium text-[#a49dbe] mb-2">Código de la Partida</label>
+                         <label for="game-code-input" class="block text-sm font-medium text-muted mb-2">Código de la Partida</label>
                          <input type="text" id="game-code-input" class="input-field" placeholder="JUEGO-XXXXX">
                     </div>
                     <div id="create-options-container" class="hidden space-y-4">
                         <div>
-                          <label class="block text-sm font-medium text-[#a49dbe] mb-2 px-4">Puntaje para Ganar</label>
+                          <label class="block text-sm font-medium text-muted mb-2 px-4">Puntaje para Ganar</label>
                           <div class="px-4"><input id="target-score-input" type="number" value="100" class="input-field" /></div>
                         </div>
                         <div>
-                          <label class="block text-sm font-medium text-[#a49dbe] mb-2 px-4">Bonus por ¡STOP!</label>
+                          <label class="block text-sm font-medium text-muted mb-2 px-4">Bonus por ¡STOP!</label>
                           <div class="px-4"><input id="basta-bonus-input" type="number" value="10" class="input-field" /></div>
                         </div>
                         <div>
-                            <p class="text-[#a49dbe] text-sm font-normal leading-normal pb-3 pt-1 px-4">Modo de Juego</p>
-                            <div class="flex px-4 py-3">
+                            <p class="text-muted text-sm font-normal leading-normal pb-3 pt-1 px-4">Modo de Juego</p>
+                            <div class="flex px-4">
                               <div class="segmented-control">
                                 <label class="segmented-control-label">
                                   <span class="truncate">Clásico</span>
@@ -84,25 +84,29 @@
 
             <div id="lobby-screen" class="hidden w-full max-w-4xl mx-auto">
                 <div class="flex items-center p-4 pb-2 justify-between">
-                  <h2 class="text-white text-lg font-bold leading-tight flex-1 text-center">Lobby</h2>
+                  <h2 class="text-white text-xl font-bold leading-tight flex-1 text-center">Sala de Espera</h2>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 p-4">
-                    <div>
-                        <h3 class="section-title">Detalles de la Partida</h3>
-                        <div class="flex gap-3 py-3 flex-wrap pr-4">
-                          <button id="copy-game-id" class="btn-chip">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256"><path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z"></path></svg>
-                            <p id="game-id-display" class="text-white text-sm font-medium">CARGANDO...</p>
-                          </button>
+                    <div class="space-y-4">
+                        <div>
+                            <h3 class="section-title">Detalles de la Partida</h3>
+                            <div class="flex gap-3 py-3 flex-wrap pr-4">
+                              <button id="copy-game-id" class="btn-chip">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256"><path d="M216,32H88a8,8,0,0,0-8,8V80H40a8,8,0,0,0-8,8V216a8,8,0,0,0,8,8H168a8,8,0,0,0,8-8V176h40a8,8,0,0,0,8-8V40A8,8,0,0,0,216,32ZM160,208H48V96H160Zm48-48H176V88a8,8,0,0,0-8-8H96V48H208Z"></path></svg>
+                                <p id="game-id-display" class="text-white text-sm font-medium">CARGANDO...</p>
+                              </button>
+                            </div>
+                            <div class="grid grid-cols-[auto_1fr] gap-x-6 text-sm">
+                              <div class="info-row"><p class="text-muted">Puntuación para Ganar</p><p id="lobby-target-score" class="text-white font-bold text-right">100</p></div>
+                              <div class="info-row"><p class="text-muted">Bonus por ¡STOP!</p><p id="lobby-basta-bonus" class="text-white font-bold text-right">10</p></div>
+                            </div>
                         </div>
-                        <div class="grid grid-cols-[auto_1fr] gap-x-6">
-                          <div class="info-row"><p class="text-muted">Puntuación para Ganar</p><p id="lobby-target-score" class="text-white font-bold text-right">100</p></div>
-                          <div class="info-row"><p class="text-muted">Bonus de Stop</p><p id="lobby-basta-bonus" class="text-white font-bold text-right">50</p></div>
+                        <div>
+                            <h3 class="section-title pt-4">Jugadores Conectados</h3>
+                            <ul id="player-list" class="space-y-2"></ul>
                         </div>
-                        <h3 class="section-title pt-4">Jugadores Conectados</h3>
-                        <ul id="player-list" class="space-y-2"></ul>
                     </div>
-                    <div>
+                    <div class="space-y-4 mt-8 md:mt-0">
                         <div id="category-editor-container" class="hidden">
                             <h3 class="section-title">Categorías</h3>
                             <ul id="category-list" class="space-y-1"></ul>
@@ -120,24 +124,24 @@
                             <h3 class="section-title">Chat</h3>
                             <div id="chat-messages" class="h-40 overflow-y-auto p-3 rounded-lg bg-[#2f2b40] mb-2 text-sm space-y-2"></div>
                             <form id="chat-form" class="flex gap-2">
-                                <input type="text" id="chat-input" class="input-field flex-1" placeholder="Escribe un mensaje..." autocomplete="off">
-                                <button type="submit" class="btn-primary text-sm h-12">Enviar</button>
+                                <input type="text" id="chat-input" class="input-field flex-1 !h-12" placeholder="Escribe un mensaje..." autocomplete="off">
+                                <button type="submit" class="btn-primary text-sm !h-12">Enviar</button>
                             </form>
                         </div>
                     </div>
                 </div>
-                <div class="p-4">
-                    <button id="start-game-btn" class="hidden btn-primary w-full">¡Empezar Juego!</button>
+                <div class="p-4 mt-4">
+                    <button id="start-game-btn" class="hidden btn-primary w-full max-w-md mx-auto">¡Empezar Juego!</button>
                     <p id="waiting-for-host-msg" class="text-center text-muted hidden">Esperando que el anfitrión inicie la partida...</p>
                 </div>
             </div>
 
-            <div id="main-game-screen" class="hidden w-full max-w-[480px] mx-auto">
+            <div id="main-game-screen" class="hidden w-full max-w-md mx-auto">
                 <div class="flex items-center p-4 pb-2 justify-between">
                   <h2 id="round-title" class="text-white text-lg font-bold">Ronda 1</h2>
                   <div class="flex items-baseline gap-2"><p class="text-muted text-sm font-bold">Puntaje</p><p id="total-score" class="text-white text-lg font-bold">0</p></div>
                 </div>
-                <h1 id="letter-display" class="text-white text-8xl font-bold text-center py-6">A</h1>
+                <h1 id="letter-display" class="text-white text-8xl md:text-9xl font-bold text-center py-6">A</h1>
                 <form id="game-form" class="space-y-3">
                     </form>
                 <div class="pt-6">
@@ -146,13 +150,13 @@
             </div>
 
             <div id="results-screen" class="hidden">
-                 <h2 id="results-title" class="section-title text-center">¡Alguien dijo STOP!</h2>
+                 <h2 id="results-title" class="section-title text-center text-2xl">¡Alguien dijo STOP!</h2>
                  <div id="results-display" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 py-4">
                      </div>
                  <div id="standings-container" class="hidden">
                     </div>
-                 <p class="text-center font-bold text-2xl mt-6">Puntaje de la Ronda: <span id="round-score" class="text-[#c6bde9]">0</span></p>
-                 <div id="results-buttons" class="flex flex-col sm:flex-row gap-4 mt-6">
+                 <p class="text-center font-bold text-2xl mt-6">Puntaje de la Ronda: <span id="round-score" class="text-primary-accent">0</span></p>
+                 <div id="results-buttons" class="flex flex-col sm:flex-row gap-4 mt-6 max-w-lg mx-auto">
                      <button id="verify-answers-btn" class="btn-secondary flex-1 gap-2">✨ Verificar con IA <div id="verify-loader" class="loader hidden"></div></button>
                     <button id="confirm-scores-btn" class="btn-primary flex-1 hidden">Confirmar Puntos</button>
                     <button id="next-round-btn" class="btn-primary flex-1 hidden">Siguiente Ronda</button>
@@ -160,7 +164,7 @@
             </div>
 
             <div id="winner-screen" class="hidden text-center py-10">
-                <h2 class="text-3xl font-bold text-[#c6bde9] mb-4">¡Tenemos un ganador!</h2>
+                <h2 class="text-3xl font-bold text-primary-accent mb-4">¡Tenemos un Ganador!</h2>
                 <p class="text-5xl font-extrabold text-white mb-6" id="winner-name"></p>
                 <h3 class="section-title mb-2">Puntajes Finales:</h3>
                 <ul id="final-scores-list" class="space-y-2 mb-8 max-w-md mx-auto">
@@ -170,7 +174,7 @@
             
             <div id="ai-verifying-screen" class="hidden text-center flex flex-col justify-center items-center min-h-[400px]">
                 <p class="mb-4 text-lg">
-                    <strong id="basta-player-name" class="text-[#c6bde9]"></strong> ha dicho ¡STOP!
+                    <strong id="basta-player-name" class="text-primary-accent"></strong> ha dicho ¡STOP!
                 </p>
                 <h2 class="text-3xl font-bold text-white mb-4">Verificando con IA</h2>
                 <p class="text-muted mb-8">Por favor, espera mientras se evalúan las respuestas...</p>
@@ -180,8 +184,8 @@
         </main>
         
         <footer class="flex flex-col gap-6 px-5 py-10 text-center @container">
-            </footer>
-
+            <p class="text-muted text-sm font-normal leading-normal">@ 2025 Stop Online</p>
+        </footer>
     </div>
 
     <script src="js/firebase.js" type="module"></script>
